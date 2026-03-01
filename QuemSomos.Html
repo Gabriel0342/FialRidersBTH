@@ -287,7 +287,11 @@
                 } else { alert("Código incorreto."); }
             },
 
-            logout() { if(confirm("Sair?")) { localStorage.removeItem('fialCurrentUser'); window.location.reload(); } },
+            logout() { 
+                localStorage.removeItem('fialCurrentUser'); 
+                localStorage.removeItem('fialAuthToken'); 
+                window.location.reload(); 
+            },
             get cartTotalItems() { return this.cart.length; },
             formatPrice(v) { return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v); }
         }
