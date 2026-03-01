@@ -181,7 +181,6 @@ function globalManager() {
         loginStep: 1, 
         tempEmail: '',
         
-        // Dados do BackEnd
         carouselImages: [],
         partners: [],
         loadingCarousel: true,
@@ -191,7 +190,6 @@ function globalManager() {
         currentUser: JSON.parse(localStorage.getItem('fialCurrentUser')) || null,
 
         async init() {
-            // Carregar dados simultaneamente
             await Promise.all([
                 this.loadHomeCarousel(),
                 this.loadPartners()
@@ -203,7 +201,6 @@ function globalManager() {
             try {
                 const res = await fetch(`${API_BASE_URL}/home`);
                 const data = await res.json();
-                // O Dashboard guarda em 'record.products'
                 const items = data.products || data.record?.products || [];
                 this.carouselImages = items.map(p => p.images[0]).filter(url => url);
             } catch (e) { console.error("Erro Carrossel:", e); }
@@ -221,7 +218,6 @@ function globalManager() {
             finally { this.loadingPartners = false; }
         },
 
-        // --- LÓGICA DE LOGIN (Via AWS Python) ---
         async iniciarLogin(numero, email) {
             if(!numero || !email) return;
             this.loginLoading = true;
