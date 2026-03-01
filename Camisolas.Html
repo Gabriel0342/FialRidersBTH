@@ -93,7 +93,7 @@
           
           <div x-show="loginStep === 1">
               <p class="text-stone-400 text-xs mb-6">Insere os teus dados para receber o código.</p>
-              <form @submit.prevent="iniciarLogin()">
+              <form @submit.prevent="iniciarLogin($refs.numeroInput.value, $refs.emailInput.value)">
                   <div class="space-y-4 mb-6">
                       <input x-ref="numeroInput" type="text" placeholder="Nº Sócio" required class="w-full bg-stone-800 border border-stone-600 rounded px-4 py-3 text-center text-white text-lg focus:border-green-500 focus:outline-none placeholder-stone-600 uppercase">
                       <input x-ref="emailInput" type="email" placeholder="Email Associado" required class="w-full bg-stone-800 border border-stone-600 rounded px-4 py-3 text-center text-white text-base focus:border-green-500 focus:outline-none placeholder-stone-600">
