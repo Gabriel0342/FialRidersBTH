@@ -182,11 +182,9 @@ function globalManager() {
         currentUser: JSON.parse(localStorage.getItem('fialCurrentUser')) || null,
 
         async init() {
-            // Carrega os eventos do servidor AWS
             await this.loadEvents();
         },
 
-        // --- LÓGICA DE EVENTOS (MAPEADA PARA O TEU BIN) ---
         async loadEvents() {
             const container = document.getElementById('timelineContainer');
             if (!container) return;
@@ -201,10 +199,8 @@ function globalManager() {
 
                 const data = await res.json();
                 
-                // Mapeamento: os eventos estão na chave "events" do JSON (visto na imagem image_06df95.png)
                 this.events = data.events || [];
                 
-                // Ordenar por data (mais recente primeiro)
                 this.events.sort((a, b) => new Date(b.date) - new Date(a.date));
                 
                 this.renderTimeline();
