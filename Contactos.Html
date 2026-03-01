@@ -141,40 +141,23 @@
                 }
             },
 
-            async iniciarLogin(numeroInserido, emailInserido) {
-              if(!numeroInserido || !emailInserido) { 
-                  alert('Por favor, preenche todos os campos.'); 
-                  return; 
-              }
-              this.loginLoading = true;
-
-              try {
-                  const response = await fetch(`${API_BASE_URL}/pedir-codigo`, { 
-                      method: 'POST',
-                      mode: 'cors',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ numero: numeroInserido, email: emailInserido })
-                  });
-                  if (!response.ok) {
-                      const errorData = await response.json();
-                      throw new Error(errorData.erro || `Erro de servidor: ${response.status}`);
-                  }
-
-                  const data = await response.json();
-
-                  if (data.sucesso) {
-                      this.tempEmail = emailInserido;
-                      this.loginStep = 2; 
-                  } else {
-                      alert(data.erro || "Dados inválidos.");
-                  }
-              } catch (error) {
-                  console.error("Erro na rede:", error);
-                  alert("Falha de rede: Verifica a consola (F12) para detalhes de CORS.");
-              } finally { 
-                  this.loginLoading = false; 
-              }
-            },
+            async iniciarLogin(numero, email) {
+            if(!numero || !email) return;
+            this.loginLoading = true;
+            try {
+                const res = await fetch(`${API_BASE_URL}/pedir-codigo`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numero, email })
+                });
+                const data = await res.json();
+                if (data.sucesso) {
+                    this.tempEmail = email;
+                    this.loginStep = 2; 
+                } else { alert(data.erro || "Sócio não encontrado."); }
+            } catch (e) { alert("Erro de rede."); } 
+            finally { this.loginLoading = false; }
+        },
 
             async verificarCodigo(codigoInserido) {
                 try {
