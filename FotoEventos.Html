@@ -140,7 +140,6 @@
 </div>
 
 <script>
-    // 1. Define o URL base da tua API
 const API_BASE_URL = "https://2xeprvu0zh.execute-api.eu-north-1.amazonaws.com/default/api";
 
 function globalManager() {
@@ -151,11 +150,9 @@ function globalManager() {
 
         init() {
             emailjs.init("5-A7FAUYnTTw369zD");
-            // Carrega a galeria através do BackEnd
             loadGallery(); 
         },
 
-        // --- Lógica de Login (Consistente com as outras páginas) ---
         async iniciarLogin(numero, email) {
             if(!numero || !email) { alert('Preenche tudo.'); return; }
             this.loginLoading = true;
@@ -229,7 +226,6 @@ function renderAlbums() {
     document.getElementById('noAlbumsMsg').classList.add('hidden');
 
     albums.forEach(album => {
-        // Usa a primeira foto como capa, ou uma imagem padrão se estiver vazio
         const cover = (album.photos && album.photos.length > 0) ? album.photos[0] : 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=400';
         
         const card = document.createElement('div');
