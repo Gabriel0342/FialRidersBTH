@@ -434,7 +434,6 @@ function shopManager() {
         },
 
         logout() { 
-            // CORREÇÃO: Utilizar localStorage em vez de sessionStorage
             localStorage.removeItem('fialCurrentUser'); 
             localStorage.removeItem('fialAuthToken'); 
             window.location.reload(); 
