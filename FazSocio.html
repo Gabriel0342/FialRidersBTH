@@ -239,7 +239,6 @@ function globalManager() {
 
         init() { emailjs.init("5-A7FAUYnTTw369zD"); },
 
-        // --- SUBMISSÃO DA FICHA ---
         async submitForm() {
             this.loading = true;
             try {
@@ -270,7 +269,6 @@ function globalManager() {
 
         resetForm() { this.submitted = false; document.getElementById('inscricaoForm').reset(); },
 
-        // --- LOGIN E CARRINHO (MAPEADOS PARA O HEADER) ---
         async iniciarLogin(numero, email) {
             this.loginLoading = true;
             try {
@@ -288,7 +286,11 @@ function globalManager() {
             } catch (e) { alert("Erro."); }
         },
 
-        logout() { localStorage.removeItem('fialCurrentUser'); window.location.reload(); },
+        logout() { 
+                localStorage.removeItem('fialCurrentUser'); 
+                localStorage.removeItem('fialAuthToken'); 
+                window.location.reload(); 
+            },
         get cartTotalItems() { return this.cart.reduce((t, i) => t + i.quantity, 0); },
         get cartTotal() { return this.formatPrice(this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)); },
         removeFromCart(index) { this.cart.splice(index, 1); localStorage.setItem('fialCart', JSON.stringify(this.cart)); },
