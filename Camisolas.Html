@@ -389,7 +389,10 @@ function shopManager() {
                 const response = await fetch(`${API_BASE_URL}/pedir-codigo`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numero, email })
+                    body: JSON.stringify({ 
+                        numero: this.loginNumero, 
+                        email: this.loginEmail 
+                    })
                 });
 
                 const data = await response.json();
