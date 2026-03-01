@@ -362,16 +362,12 @@ function shopManager() {
                 let produtosExtraidos = [];
 
                 if (Array.isArray(data)) {
-                    // O ficheiro é apenas uma lista de produtos pura [ {...}, {...} ]
                     produtosExtraidos = data;
                 } else if (data.record && Array.isArray(data.record)) {
-                    // O JSONBin embrulhou a lista dentro de "record": [ {...}, {...} ]
                     produtosExtraidos = data.record;
                 } else if (data.record && data.record.products) {
-                    // O JSONBin embrulhou a estrutura {"products": [...]} dentro de "record"
                     produtosExtraidos = data.record.products;
                 } else if (data.products) {
-                    // O ficheiro tem a estrutura direta {"products": [...]}
                     produtosExtraidos = data.products;
                 } else {
                     console.warn("Aviso: Formato de JSON não reconhecido.", data);
@@ -422,9 +418,9 @@ function shopManager() {
                 const data = await response.json();
 
                 if (data.valid && data.token) {
-                    // Guarda o passaporte de autenticação seguro na sessão
-                    sessionStorage.setItem('fialAuthToken', data.token);
-                    sessionStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome }));
+                    // CORREÇÃO: Utilizar localStorage em vez de sessionStorage
+                    localStorage.setItem('fialAuthToken', data.token);
+                    localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome }));
                     
                     this.currentUser = { name: data.nome };
                     this.loginOpen = false;
@@ -438,8 +434,9 @@ function shopManager() {
         },
 
         logout() { 
-            sessionStorage.removeItem('fialCurrentUser'); 
-            sessionStorage.removeItem('fialAuthToken'); 
+            // CORREÇÃO: Utilizar localStorage em vez de sessionStorage
+            localStorage.removeItem('fialCurrentUser'); 
+            localStorage.removeItem('fialAuthToken'); 
             window.location.reload(); 
         },
 
