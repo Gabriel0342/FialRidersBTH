@@ -244,8 +244,6 @@ function globalManager() {
                 ? `<div class="flex md:contents flex-row-reverse"><div class="relative p-6 my-6 bg-stone-900/60 border border-stone-800 rounded-xl col-start-1 col-end-5 w-full shadow-2xl backdrop-blur-sm">${cardContent}</div>${timelineDot}</div>` 
                 : `<div class="flex md:contents">${timelineDot}<div class="relative p-6 my-6 bg-stone-900/60 border border-stone-800 rounded-xl col-start-6 col-end-10 w-full shadow-2xl backdrop-blur-sm">${cardContent}</div></div>`;
         },
-
-        // --- LÓGICA DE LOGIN (INTEGRADA COM AWS) ---
         async iniciarLogin(numero, email) {
             if(!numero || !email) return;
             this.loginLoading = true;
@@ -280,13 +278,10 @@ function globalManager() {
         },
 
         logout() { 
-            if(confirm("Deseja sair da sua conta?")) {
                 localStorage.removeItem('fialCurrentUser'); 
+                localStorage.removeItem('fialAuthToken'); 
                 window.location.reload(); 
-            }
         },
-
-        // --- UTILITÁRIOS ---
         get cartTotalItems() { return this.cart.reduce((t, i) => t + i.quantity, 0); },
         get cartTotal() { return this.formatPrice(this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)); },
         removeFromCart(index) { this.cart.splice(index, 1); localStorage.setItem('fialCart', JSON.stringify(this.cart)); },
