@@ -51,7 +51,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>
                 <span x-show="cart.length > 0" class="absolute -top-2 -right-2 bg-green-700 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center border border-stone-900" x-text="cartTotalItems"></span>
             </button>
-            <button @click="if(currentUser) logout(); else loginOpen = true" class="text-sm/6 font-semibold transition tracking-wide uppercase cursor-pointer" :class="currentUser ? 'text-green-500 hover:text-red-400' : 'text-stone-300 hover:text-green-500'" x-text="currentUser ? 'Olá, ' + currentUser.name + ' (Sair)' : 'LOGIN SÓCIO'"><form @submit.prevent="iniciarLogin($refs.numeroInput.value, $refs.emailInput.value)"></button>
+            <button @click="if(currentUser) logout(); else loginOpen = true" class="text-sm/6 font-semibold transition tracking-wide uppercase cursor-pointer" :class="currentUser ? 'text-green-500 hover:text-red-400' : 'text-stone-300 hover:text-green-500'" x-text="currentUser ? 'Olá, ' + currentUser.name + ' (Sair)' : 'LOGIN SÓCIO'"></button>
         </div>
       </nav>
       <div x-show="mobileMenuOpen" class="lg:hidden" role="dialog" aria-modal="true" x-cloak>
@@ -78,7 +78,40 @@
       </div>
     </header>
 
-    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+    <div x-show="loginOpen" class="fixed inset-0 z-[500] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" x-transition.opacity x-cloak>
+      <div class="bg-stone-900 border border-stone-700 rounded-xl p-8 w-full max-w-sm text-center shadow-2xl relative" @click.away="loginOpen = false">
+          <button @click="loginOpen = false" class="absolute top-4 right-4 text-stone-500 hover:text-white">✕</button>
+          <h2 class="text-2xl font-bold text-white uppercase tracking-widest mb-2">Área de Sócio</h2>
+          
+          <div x-show="loginStep === 1">
+              <p class="text-stone-400 text-xs mb-6">Insere os teus dados para receber o código.</p>
+              <form @submit.prevent="iniciarLogin($refs.numeroInput.value, $refs.emailInput.value)">
+                  <div class="space-y-4 mb-6">
+                      <input x-ref="numeroInput" type="text" placeholder="Nº Sócio" required class="w-full bg-stone-800 border border-stone-600 rounded px-4 py-3 text-center text-white text-lg focus:border-green-500 focus:outline-none placeholder-stone-600 uppercase">
+                      <input x-ref="emailInput" type="email" placeholder="Email Associado" required class="w-full bg-stone-800 border border-stone-600 rounded px-4 py-3 text-center text-white text-base focus:border-green-500 focus:outline-none placeholder-stone-600">
+                  </div>
+                  <button type="submit" :disabled="loginLoading" class="w-full bg-green-700 hover:bg-green-600 text-white font-bold py-3 px-4 rounded transition uppercase tracking-widest flex justify-center items-center gap-2">
+                      <span x-show="!loginLoading">Enviar Código</span>
+                      <span x-show="loginLoading"><svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></span>
+                  </button>
+              </form>
+          </div>
+
+          <div x-show="loginStep === 2">
+              <p class="text-stone-400 text-xs mb-2">Código enviado para:</p>
+              <p class="text-green-500 text-sm font-bold mb-6" x-text="tempEmail"></p>
+              <form @submit.prevent="verificarCodigo($refs.codigoInput.value)">
+                  <div class="mb-6">
+                      <input x-ref="codigoInput" type="text" placeholder="Código (Ex: 123456)" required class="w-full bg-stone-800 border border-green-600 rounded px-4 py-3 text-center text-white text-2xl tracking-widest focus:outline-none placeholder-stone-700">
+                  </div>
+                  <button type="submit" class="w-full bg-green-700 hover:bg-green-600 text-white font-bold py-3 px-4 rounded transition uppercase tracking-widest">Confirmar</button>
+                  <button type="button" @click="loginStep = 1" class="mt-4 text-xs text-stone-500 underline hover:text-stone-300">Voltar / Reenviar</button>
+              </form>
+          </div>
+          <p class="mt-4 text-[10px] text-stone-500">Dados validados com a base de dados oficial.</p>
+      </div>
+  </div>
+  <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
         <div class="flex flex-col lg:flex-row items-center justify-between gap-12">
             <div class="w-full lg:w-1/2">
                 <h2 class="text-4xl md:text-7xl font-bold mb-8 text-white uppercase tracking-widest drop-shadow-md">
@@ -142,46 +175,45 @@
             },
 
             async iniciarLogin(numero, email) {
-            if(!numero || !email) return;
-            this.loginLoading = true;
-            try {
-                const res = await fetch(`${API_BASE_URL}/pedir-codigo`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numero, email })
-                });
-                const data = await res.json();
-                if (data.sucesso) {
-                    this.tempEmail = email;
-                    this.loginStep = 2; 
-                } else { alert(data.erro || "Sócio não encontrado."); }
-            } catch (e) { alert("Erro de rede."); } 
-            finally { this.loginLoading = false; }
-        },
+                if(!numero || !email) return;
+                this.loginLoading = true;
+                try {
+                    const res = await fetch(`${API_BASE_URL}/pedir-codigo`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ numero, email })
+                    });
+                    const data = await res.json();
+                    if (data.sucesso) {
+                        this.tempEmail = email;
+                        this.loginStep = 2; 
+                    } else { alert(data.erro || "Sócio não encontrado."); }
+                } catch (e) { alert("Erro de rede."); } 
+                finally { this.loginLoading = false; }
+            },
 
-            async verificarCodigo(codigoInserido) {
+            async verificarCodigo(input) {
                 try {
                     const response = await fetch(`${API_BASE_URL}/verificar-codigo`, {
                         method: 'POST',
-                        mode: 'cors',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: this.tempEmail, codigo: codigoInserido })
+                        body: JSON.stringify({ email: this.tempEmail, codigo: input })
                     });
 
                     const data = await response.json();
 
-                    if (data.valid || data.sucesso) {
-                        localStorage.setItem('fialAuthToken', data.token || 'token_dummy');
-                        localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome || 'Sócio', email: this.tempEmail }));
+                    if (data.valid && data.token) {
+                        localStorage.setItem('fialAuthToken', data.token);
+                        localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome }));
                         
-                        this.currentUser = { name: data.nome || 'Sócio', email: this.tempEmail };
+                        this.currentUser = { name: data.nome };
                         this.loginOpen = false;
                         window.location.reload();
                     } else { 
                         alert(data.erro || "Código inválido ou expirado."); 
                     }
                 } catch (e) {
-                    alert("Erro ao validar o código.");
+                    alert("Ocorreu um erro a processar a validação do teu código.");
                 }
             },
 
