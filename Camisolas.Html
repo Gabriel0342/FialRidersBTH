@@ -383,31 +383,22 @@ function shopManager() {
             }
         },
 
-        async iniciarLogin() {
+        async iniciarLogin(numero, email) {
+            if(!numero || !email) return;
             this.loginLoading = true;
             try {
-                const response = await fetch(`${API_BASE_URL}/pedir-codigo`, {
+                const res = await fetch(`${API_BASE_URL}/pedir-codigo`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        numero: this.loginNumero, 
-                        email: this.loginEmail 
-                    })
+                    body: JSON.stringify({ numero, email })
                 });
-
-                const data = await response.json();
-
+                const data = await res.json();
                 if (data.sucesso) {
-                    this.tempEmail = this.loginEmail; 
+                    this.tempEmail = email;
                     this.loginStep = 2; 
-                } else {
-                    alert(data.erro || "Dados inválidos ou sócio inexistente.");
-                }
-            } catch (e) {
-                alert("Erro de comunicação com o servidor.");
-            } finally { 
-                this.loginLoading = false; 
-            }
+                } else { alert(data.erro || "Sócio não encontrado."); }
+            } catch (e) { alert("Erro de rede."); } 
+            finally { this.loginLoading = false; }
         },
 
         async verificarCodigo(input) {
