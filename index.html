@@ -255,7 +255,11 @@ function globalManager() {
             } catch (e) { alert("Erro na validação."); }
         },
 
-        logout() { if(confirm("Deseja sair?")) { localStorage.removeItem('fialCurrentUser'); window.location.reload(); } },
+        logout() { 
+                localStorage.removeItem('fialCurrentUser'); 
+                localStorage.removeItem('fialAuthToken'); 
+                window.location.reload(); 
+            },
         get cartTotalItems() { return this.cart.reduce((t, i) => t + i.quantity, 0); }
     }
 }
