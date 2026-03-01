@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fial Riders - Quem Somos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        body{
+            margin: 0;
+            color: white;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before{
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                linear-gradient(rgba(20, 25, 20, 0.85), rgba(15, 20, 15, 0.90)),
+                url("./mainFundo.jpg") center/cover no-repeat;
+            z-index: -1;
+        }
+        
+        .blur-bg {
+            -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 65%, rgba(0,0,0,0) 100%);
+            mask-image: radial-gradient(circle, rgba(0,0,0,1) 65%, rgba(0,0,0,0) 100%);
+        }
+
+        [x-cloak] { display: none !important; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #292524; } 
+        .custom-scroll::-webkit-scrollbar-thumb { background: #166534; border-radius: 10px; } 
+    </style>
+</head>
+<body class="font-sans antialiased text-stone-200">
+
+<div x-data="globalManager()" x-init="init()" class="flex flex-col min-h-screen">
+
+  <div class="">
+    <header class="absolute inset-x-0 top-0 z-50">
+      <nav aria-label="Global" class="flex items-center justify-between p-6 lg:px-8">
+        <div class="flex lg:flex-1"><a href="#" class="-m-1.5 p-1.5"><span class="sr-only">Fial Riders</span></a></div>
+        <div class="flex lg:hidden">
+          <button type="button" @click="mobileMenuOpen = true" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-stone-200 hover:text-green-500">
+            <span class="sr-only">Menu</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-6"><path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+        </div>
+        <div class="hidden lg:flex lg:gap-x-5">
+          <a href="./index.html" class="text-sm/6 font-semibold hover:text-green-500 transition-colors">Home</a>
+          <a href="./QuemSomos.Html" class="text-sm/6 font-semibold text-green-500">Quem Somos</a>
+          <a href="./Camisolas.Html" class="text-sm/6 font-semibold hover:text-green-500 transition-colors">Merchandising</a>
+          <a href="./Eventos.Html" class="text-sm/6 font-semibold hover:text-green-500 transition-colors">Eventos</a>
+          <a href="./Contactos.Html" class="text-sm/6 font-semibold hover:text-green-500 transition-colors">Contactos</a>
+          <a href="./FotoEventos.Html" class="text-sm/6 font-semibold hover:text-green-500 transition-colors">Fotos dos Eventos</a>
+        </div>
+        <div class="flex flex-1 justify-end items-center gap-6">
+            <button @click="cartOpen = true" class="relative group text-white hover:text-green-500 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>
+                <span x-show="cart.length > 0" class="absolute -top-2 -right-2 bg-green-700 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center border border-stone-900" x-text="cartTotalItems"></span>
+            </button>
+            <button @click="if(currentUser) logout(); else loginOpen = true" class="text-sm/6 font-semibold transition tracking-wide uppercase cursor-pointer" :class="currentUser ? 'text-green-500 hover:text-red-400' : 'text-stone-300 hover:text-green-500'" x-text="currentUser ? 'Olá, ' + currentUser.name + ' (Sair)' : 'LOGIN SÓCIO'"></button>
+        </div>
+      </nav>
+      
+      <div x-show="mobileMenuOpen" class="lg:hidden" role="dialog" aria-modal="true" x-cloak>
+        <div class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" @click="mobileMenuOpen = false"></div>
+        <div class="fixed inset-y-0 left-0 z-50 w-full overflow-y-auto bg-stone-900 border-r border-stone-700 px-6 py-6 sm:max-w-sm">
+            <div class="flex items-center justify-between">
+                <a href="#" class="-m-1.5 p-1.5"><img src="./LogoMotar-removebg-preview.png" alt="" class="h-15 w-20 opacity-90" /></a>
+                <button type="button" @click="mobileMenuOpen = false" class="-m-2.5 rounded-md p-2.5 text-stone-400 hover:text-white"><span class="sr-only">Fechar</span><svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg></button>
+            </div>
+            <div class="mt-6 flow-root">
+                <div class="-my-6 divide-y divide-stone-700">
+                    <div class="space-y-2 py-6">
+                        <a href="./index.html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Home</a>
+                        <a href="./QuemSomos.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-green-500 bg-stone-800">Quem Somos</a>
+                        <a href="./Camisolas.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Merchandising</a>
+                        <a href="./Eventos.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Eventos</a>
+                        <a href="./Contactos.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Contactos</a>
+                        <a href="./FotoEventos.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Fotos dos Eventos</a>
+                        <button @click="if(currentUser) logout(); else { mobileMenuOpen = false; loginOpen = true; }" class="-mx-3 block w-full text-left rounded-lg px-3 py-2 text-base font-semibold uppercase tracking-widest" :class="currentUser ? 'text-red-400' : 'text-stone-300'"><span x-text="currentUser ? 'Sair (' + currentUser.name + ')' : 'Login Sócio'"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </header>
+  </div>
+
+  <div x-show="loginOpen" class="fixed inset-0 z-[500] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" x-transition.opacity x-cloak>
+      <div class="bg-stone-900 border border-stone-700 rounded-xl p-8 w-full max-w-sm text-center shadow-2xl relative" @click.away="loginOpen = false">
+          <button @click="loginOpen = false" class="absolute top-4 right-4 text-stone-500 hover:text-white">✕</button>
+          
+          <h2 class="text-2xl font-bold text-white uppercase tracking-widest mb-2">Área de Sócio</h2>
+          
+          <div x-show="loginStep === 1">
+              <p class="text-stone-400 text-xs mb-6">Insere os teus dados para receber o código.</p>
+              <form @submit.prevent="iniciarLogin($refs.numeroInput.value, $refs.emailInput.value)">
+                  <div class="space-y-4 mb-6">
+                      <input x-ref="numeroInput" type="text" placeholder="Nº Sócio" required class="w-full bg-stone-800 border border-stone-600 rounded px-4 py-3 text-center text-white text-lg focus:border-green-500 focus:outline-none placeholder-stone-600 uppercase">
+                      <input x-ref="emailInput" type="email" placeholder="Email Associado" required class="w-full bg-stone-800 border border-stone-600 rounded px-4 py-3 text-center text-white text-base focus:border-green-500 focus:outline-none placeholder-stone-600">
+                  </div>
+                  <button type="submit" :disabled="loginLoading" class="w-full bg-green-700 hover:bg-green-600 text-white font-bold py-3 px-4 rounded transition uppercase tracking-widest flex justify-center items-center gap-2">
+                      <span x-show="!loginLoading">Enviar Código</span>
+                      <span x-show="loginLoading"><svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></span>
+                  </button>
+              </form>
+          </div>
+
+          <div x-show="loginStep === 2">
+              <p class="text-stone-400 text-xs mb-2">Código enviado para:</p>
+              <p class="text-green-500 text-sm font-bold mb-6" x-text="tempEmail"></p>
+              
+              <form @submit.prevent="verificarCodigo($refs.codigoInput.value)">
+                  <div class="mb-6">
+                      <input x-ref="codigoInput" type="text" placeholder="Código (Ex: 123456)" required class="w-full bg-stone-800 border border-green-600 rounded px-4 py-3 text-center text-white text-2xl tracking-widest focus:outline-none placeholder-stone-700">
+                  </div>
+                  <button type="submit" class="w-full bg-green-700 hover:bg-green-600 text-white font-bold py-3 px-4 rounded transition uppercase tracking-widest">
+                      Confirmar
+                  </button>
+                  <button type="button" @click="loginStep = 1" class="mt-4 text-xs text-stone-500 underline hover:text-stone-300">Voltar / Reenviar</button>
+              </form>
+          </div>
+
+          <p class="mt-4 text-[10px] text-stone-500">Dados validados com a base de dados oficial.</p>
+      </div>
+  </div>
+
+  <div class="relative z-[300]" x-show="cartOpen" x-cloak>
+    <div class="fixed inset-0 bg-black/70 transition-opacity" x-show="cartOpen" x-transition.opacity @click="cartOpen = false"></div>
+    <div class="fixed inset-0 overflow-hidden">
+      <div class="absolute inset-0 overflow-hidden">
+        <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+          <div class="pointer-events-auto w-screen max-w-md transform transition ease-in-out duration-500 sm:duration-700"
+               x-show="cartOpen"
+               x-transition:enter="translate-x-full" x-transition:enter-end="translate-x-0"
+               x-transition:leave="translate-x-0" x-transition:leave-end="translate-x-full">
+            
+            <div class="flex h-full flex-col overflow-y-scroll bg-stone-900 border-l border-stone-700 text-stone-300 shadow-2xl">
+              <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6 custom-scroll">
+                <div class="flex items-start justify-between">
+                  <h2 class="text-lg font-medium text-white uppercase tracking-wider">Equipamento</h2>
+                  <button type="button" class="-m-2 p-2 text-stone-400 hover:text-white" @click="cartOpen = false">✕</button>
+                </div>
+                <div class="mt-8">
+                  <div class="flow-root">
+                    <ul role="list" class="-my-6 divide-y divide-stone-700">
+                      <template x-for="(item, index) in cart" :key="index">
+                          <li class="flex py-6">
+                            <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-stone-700 bg-stone-800">
+                              <img :src="item.image" class="h-full w-full object-cover object-center opacity-80">
+                            </div>
+                            <div class="ml-4 flex flex-1 flex-col">
+                              <div>
+                                <div class="flex justify-between text-base font-medium text-white">
+                                  <h3 x-text="item.name"></h3>
+                                  <p class="ml-4 text-green-500" x-text="formatPrice(item.price * item.quantity)"></p>
+                                </div>
+                                <p class="mt-1 text-sm text-stone-500" x-text="item.color ? 'Cor: ' + item.color : 'Tamanho Único'"></p>
+                              </div>
+                              <div class="flex flex-1 items-end justify-between text-sm">
+                                <p class="text-stone-500">Qtd <span x-text="item.quantity"></span></p>
+                                <button type="button" @click="removeFromCart(index)" class="font-medium text-red-700 hover:text-red-500 transition">Remover</button>
+                              </div>
+                            </div>
+                          </li>
+                      </template>
+                      <template x-if="cart.length === 0">
+                          <li class="py-6 text-center text-stone-500 italic">O teu equipamento está vazio.</li>
+                      </template>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="border-t border-stone-700 px-4 py-6 sm:px-6 bg-stone-800/50">
+                <div class="flex justify-between text-base font-medium text-white">
+                  <p>Subtotal</p>
+                  <p x-text="cartTotal"></p>
+                </div>
+                <div class="mt-6">
+                  <a href="./Camisolas.Html" class="flex items-center justify-center rounded-md border border-transparent bg-green-800 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-green-700 border-green-900 transition-all uppercase tracking-widest text-center">Ir para Loja</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="relative isolate overflow-hidden pt-28 pb-32 sm:pt-32 sm:pb-40 flex-grow">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <section class="flex flex-col xl:flex-row xl:items-start gap-10">
+        
+        <div class="w-full xl:w-2/3">
+          <h2 class="text-5xl font-bold tracking-widest text-white sm:text-7xl uppercase font-mono lg:font-sans drop-shadow-lg">
+            Quem Somos?
+          </h2>
+          <div class="hidden lg:block">
+            <p class="mt-8 text-lg font-medium text-pretty text-stone-300 sm:text-xl/8">
+              O Fial Riders é uma comunidade motard criada para viver e promover a cultura das duas rodas em Portugal, com um foco especial nas motos custom e no espírito de estrada.
+            </p>
+            <p class="mt-4 text-lg font-medium text-pretty text-stone-300 sm:text-xl/8">
+              Mais do que um grupo, somos um ponto de encontro para quem partilha a mesma paixão: convívio, amizade e respeito, onde há sempre espaço para trocar experiências, aprender, partilhar conhecimento e criar memórias em cada passeio.
+            </p>
+            <p class="mt-4 text-lg font-medium text-pretty text-stone-300 sm:text-xl/8">
+              Acreditamos que andar de moto também é uma forma de dar vida ao que é nosso. Por isso, fazemos questão de movimentar a nossa região, apoiar o que é local e dar a conhecer a nossa terra — através de eventos, encontros e viagens que juntam pessoas, histórias e motores.
+            </p>
+          </div>
+          <div class="lg:hidden">
+            <p class="mt-8 text-lg font-medium text-pretty text-stone-300 sm:text-xl/8">
+              O Fial Riders é uma comunidade motard criada para viver e promover a cultura das duas rodas em Portugal, com um foco especial nas motos custom e no espírito de estrada.
+            </p>
+            <p class="mt-4 text-lg font-medium text-pretty text-stone-300 sm:text-xl/8">
+              Mais do que um grupo, somos um ponto de encontro para quem partilha a mesma paixão: convívio, amizade e respeito, onde há sempre espaço para trocar experiências, aprender, partilhar conhecimento e criar memórias em cada passeio.
+            </p>
+            <p class="mt-4 text-lg font-medium text-pretty text-stone-300 sm:text-xl/8">
+              Acreditamos que andar de moto também é uma forma de dar vida ao que é nosso. Por isso, fazemos questão de movimentar a nossa região, apoiar o que é local e dar a conhecer a nossa terra — através de eventos, encontros e viagens que juntam pessoas, histórias e motores.
+            </p>
+          </div>
+        </div>
+
+        <div class="w-full xl:w-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5 pt-12 xl:float-right mx-auto">
+          <div class="flex-col">
+            <img src="./QuemSomos1.jpeg" alt="Fial Riders" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg brightness-90 hover:brightness-100 transition duration-500" />
+            <img src="./QuemSomos2.jpeg" alt="Fial Riders" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg pt-5 brightness-90 hover:brightness-100 transition duration-500" />
+          </div>
+          <div class="items-center flex flex-col lg:mt-14 pt-14 ps-5 gap-5">
+            <img src="./QuemSomos3.jpeg" alt="Fial Riders" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg brightness-90 hover:brightness-100 transition duration-500" />
+            <img src="./QuemSomos7.jpeg" alt="Fial Riders" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg brightness-90 hover:brightness-100 transition duration-500" />
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </main>
+  
+  <footer class="mt-10 p-4 text-center text-sm text-stone-400 bg-stone-900/90 backdrop-blur-sm border-t border-stone-800"> 
+      © 2026 Fial Riders. Todos os direitos reservados.
+  </footer>
+
+</div>
+
+<script>
+    const AWS_URL = 'https://yyhd72xhdg.execute-api.us-east-1.amazonaws.com/dev/api/verificar-socio';
+    function globalManager() {
+        return {
+            mobileMenuOpen: false, cartOpen: false, loginOpen: false, loginLoading: false, loginStep: 1, 
+            generatedCode: null, tempUserObj: null, tempEmail: '',
+            cart: JSON.parse(localStorage.getItem('fialCart')) || [],
+            currentUser: JSON.parse(localStorage.getItem('fialCurrentUser')) || null,
+            
+            init() {
+                emailjs.init("5-A7FAUYnTTw369zD"); 
+            },
+
+            async iniciarLogin(numero, email) {
+                if(!numero || !email) { alert('Preenche tudo.'); return; }
+                this.loginLoading = true;
+                try {
+                    const response = await fetch(AWS_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ numero: numero, email: email })
+                    });
+                    const data = await response.json();
+
+                    if (data.valid) {
+                        this.tempUserObj = { name: data.nome, number: numero, email: email };
+                        this.tempEmail = email;
+                        this.generatedCode = Math.floor(100000 + Math.random() * 900000);
+                        await emailjs.send("service_e3ob8ju", "template_az4ffvq", { to_email: email, to_name: data.nome, code: this.generatedCode });
+                        this.loginStep = 2; 
+                    } else { alert("Erro: " + (data.erro || "Dados incorretos.")); }
+                } catch (e) { alert("Erro ao ligar ao servidor AWS."); } 
+                finally { this.loginLoading = false; }
+            },
+
+            verificarCodigo(codigo) {
+                if (parseInt(codigo) === this.generatedCode) {
+                    localStorage.setItem('fialCurrentUser', JSON.stringify(this.tempUserObj));
+                    window.location.reload(); 
+                } else { alert("Código incorreto."); }
+            },
+
+            logout() { if(confirm("Sair?")) { localStorage.removeItem('fialCurrentUser'); window.location.reload(); } },
+            get cartTotalItems() { return this.cart.length; },
+            formatPrice(v) { return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v); }
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fial Riders - Inscrição Sócio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        body { margin: 0; color: white; min-height: 100vh; position: relative; overflow-x: hidden; }
+        body::before {
+            content: ""; position: fixed; inset: 0; z-index: -1;
+            background: linear-gradient(rgba(20, 25, 20, 0.85), rgba(15, 20, 15, 0.90)), url("./mainFundo.jpg") center/cover no-repeat;
+        }
+        [x-cloak] { display: none !important; }
+        input, textarea, select { color-scheme: dark; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #292524; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #166534; border-radius: 10px; }
+    </style>
+</head>
+<body class="font-sans antialiased text-stone-200">
+
+<div x-data="globalManager()" x-init="init()" class="flex flex-col min-h-screen">
+
+    <header class="absolute inset-x-0 top-0 z-50">
+      <nav aria-label="Global" class="flex items-center justify-between p-6 lg:px-8">
+        <div class="flex lg:flex-1"><a href="#" class="-m-1.5 p-1.5"><span class="sr-only">Fial Riders</span></a></div>
+        <div class="flex lg:hidden">
+          <button type="button" @click="mobileMenuOpen = true" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-stone-200 hover:text-green-500">
+            <span class="sr-only">Menu</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-6"><path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+        </div>
+        <div class="hidden lg:flex lg:gap-x-5">
+          <a href="./Main.Html" class="text-sm/6 font-semibold hover:text-green-500 transition-colors">Home</a>
+          <a href="./QuemSomos.Html" class="text-sm/6 font-semibold hover:text-green-500 transition-colors">Quem Somos</a>
+          <a href="./Camisolas.Html" class="text-sm/6 font-semibold hover:text-green-500 transition-colors">Merchandising</a>
+          <a href="./Eventos.Html" class="text-sm/6 font-semibold hover:text-green-500 transition-colors">Eventos</a>
+          <a href="./Contactos.Html" class="text-sm/6 font-semibold hover:text-green-500 transition-colors">Contactos</a>
+          <a href="./FotoEventos.Html" class="text-sm/6 font-semibold hover:text-green-500 transition-colors">Fotos dos Eventos</a>
+        </div>
+        <div class="flex flex-1 justify-end items-center gap-6">
+            <button @click="cartOpen = true" class="relative group text-white hover:text-green-500 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>
+                <span x-show="cart.length > 0" class="absolute -top-2 -right-2 bg-green-700 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center border border-stone-900" x-text="cartTotalItems"></span>
+            </button>
+            <button @click="if(currentUser) logout(); else loginOpen = true" class="text-sm/6 font-semibold transition tracking-wide uppercase cursor-pointer" :class="currentUser ? 'text-green-500 hover:text-red-400' : 'text-stone-300 hover:text-green-500'" x-text="currentUser ? 'Olá, ' + currentUser.name + ' (Sair)' : 'LOGIN SÓCIO'"></button>
+        </div>
+      </nav>
+      
+      <div x-show="mobileMenuOpen" class="lg:hidden" role="dialog" aria-modal="true" x-cloak>
+        <div class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" @click="mobileMenuOpen = false"></div>
+        <div class="fixed inset-y-0 left-0 z-50 w-full overflow-y-auto bg-stone-900 border-r border-stone-700 px-6 py-6 sm:max-w-sm">
+            <div class="flex items-center justify-between">
+                <a href="#" class="-m-1.5 p-1.5"><img src="./LogoMotar-removebg-preview.png" alt="" class="h-15 w-20 opacity-90" /></a>
+                <button type="button" @click="mobileMenuOpen = false" class="-m-2.5 rounded-md p-2.5 text-stone-400 hover:text-white"><span class="sr-only">Fechar</span><svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg></button>
+            </div>
+            <div class="mt-6 flow-root">
+                <div class="-my-6 divide-y divide-stone-700">
+                    <div class="space-y-2 py-6">
+                        <a href="./Main.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Home</a>
+                        <a href="./QuemSomos.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Quem Somos</a>
+                        <a href="./Camisolas.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Merchandising</a>
+                        <a href="./Eventos.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Eventos</a>
+                        <a href="./Contactos.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Contactos</a>
+                        <a href="./FotoEventos.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Fotos dos Eventos</a>
+                        <button @click="if(currentUser) logout(); else { mobileMenuOpen = false; loginOpen = true; }" class="-mx-3 block w-full text-left rounded-lg px-3 py-2 text-base font-semibold uppercase tracking-widest" :class="currentUser ? 'text-red-400' : 'text-stone-300'"><span x-text="currentUser ? 'Sair (' + currentUser.name + ')' : 'Login Sócio'"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </header>
+    <div x-show="loginOpen" class="fixed inset-0 z-[500] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" x-transition.opacity x-cloak>
+        <div class="bg-stone-900 border border-stone-700 rounded-xl p-8 w-full max-w-sm text-center shadow-2xl relative" @click.away="loginOpen = false">
+            <button @click="loginOpen = false" class="absolute top-4 right-4 text-stone-500 hover:text-white">✕</button>
+            <h2 class="text-2xl font-bold text-white uppercase tracking-widest mb-2">Área de Sócio</h2>
+            <div x-show="loginStep === 1">
+                <p class="text-stone-400 text-xs mb-6">Insere os teus dados para receber o código.</p>
+                <form @submit.prevent="iniciarLogin($refs.numeroInput.value, $refs.emailInput.value)">
+                    <div class="space-y-4 mb-6">
+                        <input x-ref="numeroInput" type="text" placeholder="Nº Sócio" required class="w-full bg-stone-800 border border-stone-600 rounded px-4 py-3 text-center text-white text-lg focus:border-green-500 outline-none uppercase">
+                        <input x-ref="emailInput" type="email" placeholder="Email Associado" required class="w-full bg-stone-800 border border-stone-600 rounded px-4 py-3 text-center text-white text-base focus:border-green-500 outline-none">
+                    </div>
+                    <button type="submit" :disabled="loginLoading" class="w-full bg-green-700 hover:bg-green-600 text-white font-bold py-3 px-4 rounded transition uppercase tracking-widest flex justify-center items-center gap-2">
+                        <span x-show="!loginLoading">Enviar Código</span>
+                        <span x-show="loginLoading" class="animate-spin text-xl">↻</span>
+                    </button>
+                </form>
+            </div>
+            <div x-show="loginStep === 2">
+                <p class="text-stone-400 text-xs mb-2">Código enviado para:</p>
+                <p class="text-green-500 text-sm font-bold mb-6" x-text="tempEmail"></p>
+                <form @submit.prevent="verificarCodigo($refs.codigoInput.value)">
+                    <input x-ref="codigoInput" type="text" placeholder="Código" required class="w-full bg-stone-800 border border-green-600 rounded px-4 py-3 text-center text-white text-2xl tracking-[0.5em] mb-6 outline-none">
+                    <button type="submit" class="w-full bg-green-700 hover:bg-green-600 text-white font-bold py-3 px-4 rounded transition uppercase tracking-widest">Confirmar</button>
+                    <button type="button" @click="loginStep = 1" class="mt-4 text-xs text-stone-500 underline">Voltar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative z-[300]" x-show="cartOpen" x-cloak>
+        <div class="fixed inset-0 bg-black/70 transition-opacity" @click="cartOpen = false"></div>
+        <div class="fixed inset-y-0 right-0 flex max-w-full pl-10">
+            <div class="w-screen max-w-md bg-stone-900 border-l border-stone-700 text-stone-300 shadow-2xl flex flex-col h-full"
+                 x-transition:enter="translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="translate-x-0" x-transition:leave-end="translate-x-full">
+                <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6 custom-scroll">
+                    <div class="flex items-start justify-between"><h2 class="text-lg font-medium text-white uppercase tracking-wider font-bold">Equipamento</h2><button @click="cartOpen = false" class="text-stone-400 hover:text-white">✕</button></div>
+                    <div class="mt-8">
+                        <ul class="-my-6 divide-y divide-stone-700">
+                            <template x-for="(item, index) in cart" :key="index">
+                                <li class="flex py-6">
+                                    <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-stone-700 bg-stone-800"><img :src="item.image" class="h-full w-full object-cover opacity-80"></div>
+                                    <div class="ml-4 flex flex-1 flex-col">
+                                        <div class="flex justify-between text-base font-medium text-white"><h3 x-text="item.name" class="font-bold"></h3><p class="ml-4 text-green-500" x-text="formatPrice(item.price * item.quantity)"></p></div>
+                                        <div class="flex flex-1 items-end justify-between text-sm"><p class="text-stone-500">Qtd <span x-text="item.quantity"></span></p><button @click="removeFromCart(index)" class="font-bold text-red-700 hover:text-red-500">Remover</button></div>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                        <template x-if="cart.length === 0"><p class="py-10 text-center text-stone-500 italic">O teu equipamento está vazio.</p></template>
+                    </div>
+                </div>
+                <div class="border-t border-stone-700 px-4 py-6 bg-stone-800/50">
+                    <div class="flex justify-between text-base font-medium text-white"><p>Subtotal</p><p x-text="cartTotal" class="text-green-500 font-bold"></p></div>
+                    <div class="mt-6"><a href="./Camisolas.Html" class="flex items-center justify-center rounded-md bg-green-800 px-6 py-3 text-white font-bold hover:bg-green-700 transition uppercase tracking-widest text-center">Ir para Loja</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="relative pt-28 pb-20 px-4 sm:px-6 lg:px-8 flex-grow">
+        <div class="mx-auto max-w-5xl">
+            <div class="text-center mb-10">
+                <h1 class="text-4xl font-bold tracking-[0.2em] text-white sm:text-6xl uppercase font-mono drop-shadow-lg">Ficha de Inscrição</h1>
+                <p class="mt-2 text-green-500 uppercase tracking-widest font-bold">Fial Riders</p>
+            </div>
+
+            <div class="bg-stone-900 border border-stone-800 rounded-sm p-8 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-900 via-green-600 to-green-900"></div>
+
+                <div x-show="submitted" x-transition x-cloak class="absolute inset-0 bg-stone-900 z-50 flex flex-col items-center justify-center text-center p-8">
+                     <div class="bg-green-900/20 p-6 rounded-full border-2 border-green-600 mb-6">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                     </div>
+                     <h3 class="text-3xl font-bold text-white uppercase tracking-widest mb-4">Inscrição Recebida!</h3>
+                     <p class="text-stone-400 max-w-md">Os dados foram enviados com sucesso para a direção.</p>
+                     <button @click="resetForm()" class="mt-8 text-green-500 hover:text-white underline uppercase tracking-wide">Nova inscrição</button>
+                </div>
+
+                <form @submit.prevent="submitForm" id="inscricaoForm" class="space-y-8">
+                    <div>
+                        <h3 class="text-lg font-bold text-white bg-stone-800 p-2 border-l-4 border-green-600 uppercase tracking-widest mb-6">Dados Gerais</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-5">
+                            <div class="lg:col-span-4"><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">Nome Completo</label><input type="text" name="nome" required class="w-full bg-stone-800/50 border border-stone-600 rounded-sm px-3 py-2 text-stone-200 focus:border-green-600 uppercase"></div>
+                            <div class="lg:col-span-2"><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">Alcunha Motard</label><input type="text" name="alcunha" class="w-full bg-stone-800/50 border border-stone-600 rounded-sm px-3 py-2 text-stone-200 focus:border-green-600 uppercase"></div>
+                            <div class="lg:col-span-2"><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">Data Nascimento</label><input type="date" name="data_nascimento" required class="w-full bg-stone-800/50 border border-stone-600 rounded-sm px-3 py-2 text-stone-200 focus:border-green-600"></div>
+                            <div class="lg:col-span-2">
+                                <label class="block text-[10px] font-bold text-stone-500 uppercase mb-2">Gênero</label>
+                                <div class="flex gap-4">
+                                    <label class="flex items-center cursor-pointer"><input type="radio" name="genero" value="M" checked class="text-green-600 mr-2"> M</label>
+                                    <label class="flex items-center cursor-pointer"><input type="radio" name="genero" value="F" class="text-green-600 mr-2"> F</label>
+                                </div>
+                            </div>
+                            <div class="lg:col-span-2"><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">Grupo Sanguíneo</label><select name="sangue" class="w-full bg-stone-800/50 border border-stone-600 rounded-sm px-3 py-2 text-stone-200 focus:border-green-600"><option value="Nao definido">Selecione</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+                            <div class="lg:col-span-3"><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">NIF</label><input type="text" name="nif" required class="w-full bg-stone-800/50 border border-stone-600 rounded-sm px-3 py-2 text-stone-200"></div>
+                            <div class="lg:col-span-3"><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">Nº CC</label><input type="text" name="cc" required class="w-full bg-stone-800/50 border border-stone-600 rounded-sm px-3 py-2 text-stone-200"></div>
+                            <div class="lg:col-span-6"><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">Morada</label><input type="text" name="morada" required class="w-full bg-stone-800/50 border border-stone-600 rounded-sm px-3 py-2 text-stone-200 uppercase"></div>
+                            <div class="lg:col-span-2"><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">Cod. Postal</label><input type="text" name="cod_postal" required class="w-full bg-stone-800/50 border border-stone-600 rounded-sm px-3 py-2 text-stone-200"></div>
+                            <div class="lg:col-span-4"><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">Cidade</label><input type="text" name="cidade" required class="w-full bg-stone-800/50 border border-stone-600 rounded-sm px-3 py-2 text-stone-200 uppercase"></div>
+                            <div class="lg:col-span-3"><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">Telemóvel</label><input type="tel" name="telemovel" required class="w-full bg-stone-800/50 border border-stone-600 rounded-sm px-3 py-2 text-stone-200"></div>
+                            <div class="lg:col-span-3"><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">Email</label><input type="email" name="email" required class="w-full bg-stone-800/50 border border-stone-600 rounded-sm px-3 py-2 text-stone-200"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-bold text-white bg-stone-800 p-2 border-l-4 border-red-700 uppercase tracking-widest mb-6">Contactos de Emergência (ICE)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">Nome / Parentesco</label><input type="text" name="ice_nome" required class="w-full bg-stone-800/50 border border-stone-600 rounded-sm px-3 py-2 text-stone-200 uppercase"></div>
+                            <div><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">Contacto Móvel</label><input type="tel" name="ice_tel" required class="w-full bg-stone-800/50 border border-stone-600 rounded-sm px-3 py-2 text-stone-200"></div>
+                            <div><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">Número Alternativo</label><input type="tel" name="ice_alt" class="w-full bg-stone-800/50 border border-stone-600 rounded-sm px-3 py-2 text-stone-200"></div>
+                            <div><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">Contacto Profissional</label><input type="text" name="ice_prof" class="w-full bg-stone-800/50 border border-stone-600 rounded-sm px-3 py-2 text-stone-200"></div>
+                        </div>
+                    </div>
+
+                    <div x-data="{ hasBike: true }">
+                        <h3 class="text-lg font-bold text-white bg-stone-800 p-2 border-l-4 border-yellow-600 uppercase tracking-widest mb-6 flex justify-between items-center">
+                            Descrição das Motas
+                            <label class="flex items-center text-xs font-normal normal-case cursor-pointer mr-2"><input type="checkbox" x-model="!hasBike" name="sem_mota" class="mr-2 text-green-600"> Sem Mota</label>
+                        </h3>
+                        <div x-show="hasBike" x-collapse>
+                            <div class="mb-6 p-4 border border-stone-700 rounded bg-stone-800/20">
+                                <h4 class="text-green-500 font-bold uppercase mb-3">Mota 1</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">Marca</label><input type="text" name="mota_marca" class="w-full bg-stone-800 border border-stone-600 px-3 py-2"></div>
+                                    <div><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">Modelo</label><input type="text" name="mota_modelo" class="w-full bg-stone-800 border border-stone-600 px-3 py-2"></div>
+                                    <div><label class="block text-[10px] font-bold text-stone-500 uppercase mb-1">Cilindrada</label><input type="text" name="mota_cc" class="w-full bg-stone-800 border border-stone-600 px-3 py-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-bold text-white bg-stone-800 p-2 border-l-4 border-white uppercase tracking-widest mb-6">Condições</h3>
+                        <div class="bg-stone-800 p-4 rounded mb-6 text-center border border-stone-600">
+                            <p class="text-green-500 font-bold uppercase">Total a Pagar: 15,00€ (Joia + Quota)</p>
+                        </div>
+                        <div class="space-y-3">
+                            <label class="flex items-start cursor-pointer p-2 hover:bg-stone-800 rounded transition"><input type="checkbox" name="aceita_dados" required class="mt-1 mr-3 text-green-600"><span class="text-sm">Aceito tratamento informático dos dados.</span></label>
+                            <label class="flex items-start cursor-pointer p-2 hover:bg-stone-800 rounded transition"><input type="checkbox" name="aceita_termos" required class="mt-1 mr-3 text-green-600"><span class="text-sm">Aceito os Estatutos e Regulamentos.</span></label>
+                            <label class="flex items-start cursor-pointer p-2 hover:bg-stone-800 rounded transition"><input type="checkbox" name="aceita_pagamento" required class="mt-1 mr-3 text-green-600"><span class="text-sm">Declaro ter efetuado o pagamento.</span></label>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-4">
+                        <button type="submit" :disabled="loading" class="w-full md:w-auto bg-green-800 hover:bg-green-700 text-white font-bold uppercase tracking-widest py-3 px-8 rounded-sm shadow-lg border border-green-900 transition-all active:scale-95 flex items-center justify-center">
+                            <span x-show="!loading">Submeter Inscrição</span>
+                            <span x-show="loading" class="flex items-center"><svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>A Processar...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-10 p-4 text-center text-sm text-stone-400 bg-stone-900/90 backdrop-blur-sm border-t border-stone-800">© 2026 Fial Riders. All rights reserved.</footer>
+</div>
+
+<script>
+const API_BASE_URL = "https://2xeprvu0zh.execute-api.eu-north-1.amazonaws.com/default/api";
+
+function globalManager() {
+    return {
+        mobileMenuOpen: false, loginOpen: false, loginLoading: false, loginStep: 1, cartOpen: false,
+        tempEmail: '', loading: false, submitted: false,
+        cart: JSON.parse(localStorage.getItem('fialCart')) || [],
+        currentUser: JSON.parse(localStorage.getItem('fialCurrentUser')) || null,
+
+        init() { emailjs.init("5-A7FAUYnTTw369zD"); },
+
+        // --- SUBMISSÃO DA FICHA ---
+        async submitForm() {
+            this.loading = true;
+            try {
+                const form = document.getElementById('inscricaoForm');
+                const fd = new FormData(form);
+                const d = Object.fromEntries(fd.entries());
+
+                const motaInfo = d.sem_mota ? "SEM MOTA" : `Mota 1: ${d.mota_marca || ''} ${d.mota_modelo || ''} (${d.mota_cc || ''}cc)`;
+
+                const payload = {
+                    nome: d.nome, alcunha: d.alcunha, data_nascimento: d.data_nascimento,
+                    sangue: d.sangue, nif: d.nif, cc: d.cc, morada: d.morada,
+                    cod_postal: d.cod_postal, cidade: d.cidade, telemovel: d.telemovel,
+                    email: d.email, ice_nome: d.ice_nome, ice_tel: d.ice_tel, mota_detalhes: motaInfo
+                };
+
+                const res = await fetch(`${API_BASE_URL}/inscrever-socio`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.sucesso) { this.submitted = true; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+                else { alert(data.erro); }
+            } catch (e) { alert("Erro de rede."); }
+            finally { this.loading = false; }
+        },
+
+        resetForm() { this.submitted = false; document.getElementById('inscricaoForm').reset(); },
+
+        // --- LOGIN E CARRINHO (MAPEADOS PARA O HEADER) ---
+        async iniciarLogin(numero, email) {
+            this.loginLoading = true;
+            try {
+                const res = await fetch(`${API_BASE_URL}/pedir-codigo`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ numero, email }) });
+                const data = await res.json();
+                if (data.sucesso) { this.tempEmail = email; this.loginStep = 2; } else { alert(data.erro); }
+            } catch (e) { alert("Erro."); } finally { this.loginLoading = false; }
+        },
+
+        async verificarCodigo(codigo) {
+            try {
+                const res = await fetch(`${API_BASE_URL}/verificar-codigo`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: this.tempEmail, codigo }) });
+                const data = await res.json();
+                if (data.valid) { localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome, email: this.tempEmail })); window.location.reload(); }
+            } catch (e) { alert("Erro."); }
+        },
+
+        logout() { localStorage.removeItem('fialCurrentUser'); window.location.reload(); },
+        get cartTotalItems() { return this.cart.reduce((t, i) => t + i.quantity, 0); },
+        get cartTotal() { return this.formatPrice(this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)); },
+        removeFromCart(index) { this.cart.splice(index, 1); localStorage.setItem('fialCart', JSON.stringify(this.cart)); },
+        formatPrice(v) { return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v); }
+    }
+}
+</script>
+</body>
+</html>

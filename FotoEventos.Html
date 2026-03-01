@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fial Riders - Fotos dos Eventos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        body{ margin: 0; color: white; min-height: 100vh; position: relative; }
+        body::before{
+            content: ""; position: fixed; inset: 0;
+            background: linear-gradient(rgba(20, 25, 20, 0.85), rgba(15, 20, 15, 0.90)),
+                        url("./mainFundo.jpg") center/cover no-repeat;
+            z-index: -1;
+        }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .modal-overlay.active { display: flex !important; }
+        
+        .folder-card { transition: all 0.3s ease; }
+        .folder-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.7); border-color: #15803d; }
+        
+        [x-cloak] { display: none !important; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #292524; } 
+        .custom-scroll::-webkit-scrollbar-thumb { background: #166534; border-radius: 10px; } 
+    </style>
+</head>
+<body class="font-sans antialiased text-stone-200">
+
+<div x-data="globalManager()" x-init="init()" class="flex flex-col min-h-screen">
+    <header class="absolute inset-x-0 top-0 z-50">
+      <nav aria-label="Global" class="flex items-center justify-between p-6 lg:px-8">
+        <div class="flex lg:flex-1"><a href="#" class="-m-1.5 p-1.5"><span class="sr-only">Fial Riders</span></a></div>
+        <div class="flex lg:hidden">
+          <button type="button" @click="mobileMenuOpen = true" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-stone-200 hover:text-green-500">
+            <span class="sr-only">Menu</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-6"><path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+        </div>
+        <div class="hidden lg:flex lg:gap-x-5">
+          <a href="./index.html" class="text-sm/6 font-semibold hover:text-green-500 transition-colors">Home</a>
+          <a href="./QuemSomos.Html" class="text-sm/6 font-semibold hover:text-green-500 transition-colors">Quem Somos</a>
+          <a href="./Camisolas.Html" class="text-sm/6 font-semibold hover:text-green-500 transition-colors">Merchandising</a>
+          <a href="./Eventos.Html" class="text-sm/6 font-semibold hover:text-green-500 transition-colors">Eventos</a>
+          <a href="./Contactos.Html" class="text-sm/6 font-semibold hover:text-green-500 transition-colors">Contactos</a>
+          <a href="./FotoEventos.Html" class="text-sm/6 font-semibold text-green-500">Fotos dos Eventos</a>
+        </div>
+        <div class="flex flex-1 justify-end items-center gap-6">
+            <button @click="cartOpen = true" class="relative group text-white hover:text-green-500 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>
+                <span x-show="cart.length > 0" class="absolute -top-2 -right-2 bg-green-700 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center border border-stone-900" x-text="cartTotalItems"></span>
+            </button>
+            <button @click="if(currentUser) logout(); else loginOpen = true" class="text-sm/6 font-semibold transition tracking-wide uppercase cursor-pointer" :class="currentUser ? 'text-green-500 hover:text-red-400' : 'text-stone-300 hover:text-green-500'" x-text="currentUser ? 'Olá, ' + currentUser.name + ' (Sair)' : 'LOGIN SÓCIO'"></button>
+        </div>
+      </nav>
+      
+      <div x-show="mobileMenuOpen" class="lg:hidden" role="dialog" aria-modal="true" x-cloak>
+        <div class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" @click="mobileMenuOpen = false"></div>
+        <div class="fixed inset-y-0 left-0 z-50 w-full overflow-y-auto bg-stone-900 border-r border-stone-700 px-6 py-6 sm:max-w-sm">
+            <div class="flex items-center justify-between">
+                <a href="#" class="-m-1.5 p-1.5"><img src="./LogoMotar-removebg-preview.png" alt="" class="h-15 w-20 opacity-90" /></a>
+                <button type="button" @click="mobileMenuOpen = false" class="-m-2.5 rounded-md p-2.5 text-stone-400 hover:text-white"><span class="sr-only">Fechar</span><svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg></button>
+            </div>
+            <div class="mt-6 flow-root">
+                <div class="-my-6 divide-y divide-stone-700">
+                    <div class="space-y-2 py-6">
+                        <a href="./index.html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Home</a>
+                        <a href="./QuemSomos.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Quem Somos</a>
+                        <a href="./Camisolas.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Merchandising</a>
+                        <a href="./Eventos.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Eventos</a>
+                        <a href="./Contactos.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Contactos</a>
+                        <a href="./FotoEventos.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-green-500 bg-stone-800">Fotos dos Eventos</a>
+                        <button @click="if(currentUser) logout(); else { mobileMenuOpen = false; loginOpen = true; }" class="-mx-3 block w-full text-left rounded-lg px-3 py-2 text-base font-semibold uppercase tracking-widest" :class="currentUser ? 'text-red-400' : 'text-stone-300'"><span x-text="currentUser ? 'Sair (' + currentUser.name + ')' : 'Login Sócio'"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </header>
+
+    <div x-show="loginOpen" class="fixed inset-0 z-[500] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" x-transition.opacity x-cloak>
+        <div class="bg-stone-900 border border-stone-700 rounded-xl p-8 w-full max-w-sm text-center shadow-2xl relative" @click.away="loginOpen = false">
+            <button @click="loginOpen = false" class="absolute top-4 right-4 text-stone-500 hover:text-white">✕</button>
+            <h2 class="text-2xl font-bold text-white uppercase tracking-widest mb-2">Área de Sócio</h2>
+            <div x-show="loginStep === 1">
+                <p class="text-stone-400 text-xs mb-6">Insere os teus dados para receber o código.</p>
+                <form @submit.prevent="iniciarLogin($refs.numeroInput.value, $refs.emailInput.value)">
+                    <div class="space-y-4 mb-6">
+                        <input x-ref="numeroInput" type="text" placeholder="Nº Sócio" required class="w-full bg-stone-800 border border-stone-600 rounded px-4 py-3 text-center text-white text-lg focus:border-green-500 focus:outline-none placeholder-stone-600 uppercase">
+                        <input x-ref="emailInput" type="email" placeholder="Email Associado" required class="w-full bg-stone-800 border border-stone-600 rounded px-4 py-3 text-center text-white text-base focus:border-green-500 focus:outline-none placeholder-stone-600">
+                    </div>
+                    <button type="submit" :disabled="loginLoading" class="w-full bg-green-700 hover:bg-green-600 text-white font-bold py-3 px-4 rounded transition uppercase tracking-widest flex justify-center items-center gap-2">
+                        <span x-show="!loginLoading">Enviar Código</span>
+                        <span x-show="loginLoading"><svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></span>
+                    </button>
+                </form>
+            </div>
+            <div x-show="loginStep === 2">
+                <p class="text-stone-400 text-xs mb-2">Código enviado para:</p>
+                <p class="text-green-500 text-sm font-bold mb-6" x-text="tempEmail"></p>
+                <form @submit.prevent="verificarCodigo($refs.codigoInput.value)">
+                    <div class="mb-6">
+                        <input x-ref="codigoInput" type="text" placeholder="Código (Ex: 123456)" required class="w-full bg-stone-800 border border-green-600 rounded px-4 py-3 text-center text-white text-2xl tracking-widest focus:outline-none placeholder-stone-700">
+                    </div>
+                    <button type="submit" class="w-full bg-green-700 hover:bg-green-600 text-white font-bold py-3 px-4 rounded transition uppercase tracking-widest">Confirmar</button>
+                    <button type="button" @click="loginStep = 1" class="mt-4 text-xs text-stone-500 underline hover:text-stone-300">Voltar / Reenviar</button>
+                </form>
+            </div>
+            <p class="mt-4 text-[10px] text-stone-500">Dados validados com a base de dados oficial.</p>
+        </div>
+    </div>
+
+    <main class="pt-24 px-4 pb-12 max-w-7xl mx-auto w-full flex-grow">
+        <div id="albumsView">
+            <div class="flex justify-between items-center mb-8 border-b border-stone-700 pb-4">
+                <h1 class="text-3xl font-bold text-white uppercase tracking-widest drop-shadow-md">Arquivo de Missões</h1>
+                </div>
+            <div id="albumsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+            <p id="noAlbumsMsg" class="hidden text-center text-stone-500 mt-10 text-lg italic">Nenhum registo de estrada encontrado.</p>
+        </div>
+
+        <div id="photosView" class="hidden">
+            <div class="flex justify-between items-center mb-6 border-b border-stone-700 pb-4">
+                <div class="flex items-center gap-4">
+                    <button onclick="backToAlbums()" class="text-stone-400 hover:text-white flex items-center gap-1 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Voltar
+                    </button>
+                    <h1 id="currentAlbumTitle" class="text-2xl font-bold text-green-500 uppercase tracking-wide"></h1>
+                </div>
+                </div>
+            <div id="photosGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+        </div>
+    </main>
+
+    <footer class="mt-auto p-4 text-center text-sm text-stone-500 bg-stone-900/90 backdrop-blur-sm border-t border-stone-800"> 
+        © 2026 Fial Riders. Todos os direitos reservados.
+    </footer>
+</div>
+
+<script>
+    // 1. Define o URL base da tua API
+const API_BASE_URL = "https://2xeprvu0zh.execute-api.eu-north-1.amazonaws.com/default/api";
+
+function globalManager() {
+    return {
+        currentUser: JSON.parse(localStorage.getItem('fialCurrentUser')) || null,
+        mobileMenuOpen: false, loginOpen: false, loginStep: 1, loginLoading: false,
+        tempEmail: '', tempUserObj: null, generatedCode: null,
+
+        init() {
+            emailjs.init("5-A7FAUYnTTw369zD");
+            // Carrega a galeria através do BackEnd
+            loadGallery(); 
+        },
+
+        // --- Lógica de Login (Consistente com as outras páginas) ---
+        async iniciarLogin(numero, email) {
+            if(!numero || !email) { alert('Preenche tudo.'); return; }
+            this.loginLoading = true;
+            try {
+                const response = await fetch(`${API_BASE_URL}/pedir-codigo`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numero, email })
+                });
+                const data = await response.json();
+                if (data.sucesso) {
+                    this.tempEmail = email;
+                    this.loginStep = 2;
+                } else { alert(data.erro || "Dados incorretos."); }
+            } catch (e) { alert("Erro de ligação à AWS."); } 
+            finally { this.loginLoading = false; }
+        },
+
+        async verificarCodigo(codigo) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/verificar-codigo`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: this.tempEmail, codigo: codigo })
+                });
+                const data = await response.json();
+                if (data.valid) {
+                    localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome, email: this.tempEmail }));
+                    window.location.reload();
+                } else { alert("Código incorreto."); }
+            } catch (e) { alert("Erro na validação."); }
+        },
+
+        logout() { if(confirm("Sair?")) { localStorage.removeItem('fialCurrentUser'); window.location.reload(); } }
+    }
+}
+
+// --- LÓGICA DA GALERIA ---
+let albums = [];
+let currentAlbumId = null;
+
+async function loadGallery() {
+    try {
+        // Chamada ao TEU BackEnd
+        const res = await fetch(`${API_BASE_URL}/galeria`);
+        if (!res.ok) throw new Error("Erro ao carregar galeria");
+        
+        const data = await res.json();
+        
+        // De acordo com a estrutura do teu BIN:
+        albums = data.albums || []; 
+        
+        renderAlbums();
+    } catch (e) { 
+        console.error("Erro:", e);
+        document.getElementById('albumsGrid').innerHTML = '<p class="col-span-full text-center text-stone-500">Erro ao carregar os registos de estrada.</p>';
+    }
+}
+
+function renderAlbums() {
+    const grid = document.getElementById('albumsGrid');
+    if(!grid) return;
+    grid.innerHTML = '';
+    
+    if (albums.length === 0) { 
+        document.getElementById('noAlbumsMsg').classList.remove('hidden'); 
+        return; 
+    }
+    
+    document.getElementById('noAlbumsMsg').classList.add('hidden');
+
+    albums.forEach(album => {
+        // Usa a primeira foto como capa, ou uma imagem padrão se estiver vazio
+        const cover = (album.photos && album.photos.length > 0) ? album.photos[0] : 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=400';
+        
+        const card = document.createElement('div');
+        card.className = 'folder-card bg-stone-900/60 border border-stone-800 rounded-xl overflow-hidden cursor-pointer shadow-lg backdrop-blur-sm hover:border-green-700 transition-all';
+        card.onclick = () => openAlbumView(album.id);
+        card.innerHTML = `
+            <div class="h-48 w-full bg-stone-800 relative overflow-hidden">
+                <img src="${cover}" class="w-full h-full object-cover opacity-60 hover:opacity-100 transition duration-500">
+                <div class="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded text-[10px] text-green-500 font-bold border border-green-900 uppercase">
+                    ${album.photos ? album.photos.length : 0} Fotos
+                </div>
+            </div>
+            <div class="p-4 border-t border-stone-800">
+                <h3 class="font-bold text-lg text-white truncate uppercase tracking-wide">${album.title}</h3>
+                <p class="text-[10px] text-stone-500 font-mono mt-1">${formatDate(album.date)}</p>
+            </div>`;
+        grid.appendChild(card);
+    });
+}
+
+function renderPhotos() {
+    const album = albums.find(a => a.id === currentAlbumId);
+    const grid = document.getElementById('photosGrid');
+    if(!grid || !album) return;
+    grid.innerHTML = '';
+    document.getElementById('currentAlbumTitle').innerText = album.title;
+
+    album.photos.forEach((photo) => {
+        const div = document.createElement('div');
+        div.className = 'relative group aspect-square rounded-lg overflow-hidden bg-stone-800 border border-stone-700 shadow-md';
+        div.innerHTML = `
+            <img src="${photo}" class="w-full h-full object-cover transition duration-500 hover:scale-110 cursor-zoom-in" 
+                 onclick="window.open('${photo}', '_blank')">
+        `;
+        grid.appendChild(div);
+    });
+}
+
+function openAlbumView(id) { 
+    currentAlbumId = id; 
+    document.getElementById('albumsView').classList.add('hidden'); 
+    document.getElementById('photosView').classList.remove('hidden'); 
+    renderPhotos(); 
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function backToAlbums() { 
+    currentAlbumId = null; 
+    document.getElementById('photosView').classList.add('hidden'); 
+    document.getElementById('albumsView').classList.remove('hidden'); 
+    renderAlbums(); 
+}
+
+function formatDate(d) { 
+    if(!d) return "Data N/D";
+    return new Date(d).toLocaleDateString('pt-PT', { day: '2-digit', month: 'long', year: 'numeric' }); 
+}
+</script>
+</body>
+</html>
