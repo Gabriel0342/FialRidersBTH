@@ -288,8 +288,9 @@
                     const data = await response.json();
 
                     if (data.valid || data.sucesso) {
-                        sessionStorage.setItem('fialAuthToken', data.token || 'token_dummy');
-                        sessionStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome || 'Sócio', email: this.tempEmail }));
+                        // CORREÇÃO: Utilizar localStorage em vez de sessionStorage
+                        localStorage.setItem('fialAuthToken', data.token || 'token_dummy');
+                        localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome || 'Sócio', email: this.tempEmail }));
                         
                         this.currentUser = { name: data.nome || 'Sócio', email: this.tempEmail };
                         this.loginOpen = false;
@@ -300,6 +301,13 @@
                 } catch (e) {
                     alert("Erro ao validar o código.");
                 }
+            },
+
+            // CORREÇÃO: Função logout adicionada para o botão "Sair" funcionar
+            logout() { 
+                localStorage.removeItem('fialCurrentUser'); 
+                localStorage.removeItem('fialAuthToken'); 
+                window.location.reload(); 
             },
 
             async sendContact() {
