@@ -189,23 +189,24 @@ function globalManager() {
             } catch (e) { alert("Erro na validação."); }
         },
 
-        logout() { if(confirm("Sair?")) { localStorage.removeItem('fialCurrentUser'); window.location.reload(); } }
+        logout() { 
+                localStorage.removeItem('fialCurrentUser'); 
+                localStorage.removeItem('fialAuthToken'); 
+                window.location.reload(); 
+            },
     }
 }
 
-// --- LÓGICA DA GALERIA ---
 let albums = [];
 let currentAlbumId = null;
 
 async function loadGallery() {
     try {
-        // Chamada ao TEU BackEnd
         const res = await fetch(`${API_BASE_URL}/galeria`);
         if (!res.ok) throw new Error("Erro ao carregar galeria");
         
         const data = await res.json();
         
-        // De acordo com a estrutura do teu BIN:
         albums = data.albums || []; 
         
         renderAlbums();
