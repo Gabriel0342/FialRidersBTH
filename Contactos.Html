@@ -288,7 +288,6 @@
                     const data = await response.json();
 
                     if (data.valid || data.sucesso) {
-                        // CORREÇÃO: Utilizar localStorage em vez de sessionStorage
                         localStorage.setItem('fialAuthToken', data.token || 'token_dummy');
                         localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome || 'Sócio', email: this.tempEmail }));
                         
@@ -303,7 +302,6 @@
                 }
             },
 
-            // CORREÇÃO: Função logout adicionada para o botão "Sair" funcionar
             logout() { 
                 localStorage.removeItem('fialCurrentUser'); 
                 localStorage.removeItem('fialAuthToken'); 
