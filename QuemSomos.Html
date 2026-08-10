@@ -247,6 +247,65 @@
 
 <script>
     const AWS_URL = 'https://yyhd72xhdg.execute-api.us-east-1.amazonaws.com/dev/api/verificar-socio';
+
+// ============================================
+// WRAPPER DE FETCH CENTRALIZADO COM TOKEN AUTOMÁTICO
+// ============================================
+/**
+ * Função wrapper para fetch que injeta automaticamente o token de autorização
+ * em TODOS os pedidos ao backend.
+ * Se o token existir no localStorage ('fialAuthToken'), ele será adicionado
+ * ao header Authorization: Bearer <TOKEN>
+ * 
+ * @param {string} url - URL do endpoint
+ * @param {Object} options - Opções do fetch (method, headers, body, etc.)
+ * @returns {Promise<any>} - Resposta da API em JSON
+ * @throws {Error} - Lança erro se a resposta não for OK
+ */
+async function apiFetch(url, options = {}) {
+    // Criar novos headers baseados nos headers existentes
+    const headers = new Headers(options.headers || {});
+    
+    // Obter token do localStorage
+    const token = localStorage.getItem('fialAuthToken');
+    
+    // Se token existir, adicionar ao header Authorization
+    if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+    }
+    
+    // Garantir que Content-Type é application/json para POST/PUT/PATCH
+    if (['POST', 'PUT', 'PATCH'].includes((options.method || 'GET').toUpperCase()) && 
+        !headers.get('Content-Type')) {
+        headers.set('Content-Type', 'application/json');
+    }
+    
+    // Criar config final
+    const config = {
+        ...options,
+        headers: headers
+    };
+    
+    // Fazer o request
+    const response = await fetch(url, config);
+    
+    // Verificar se a resposta é OK
+    if (!response.ok) {
+        let errorData;
+        try {
+            errorData = await response.json();
+        } catch (e) {
+            errorData = {};
+        }
+        const errorMessage = errorData.erro || errorData.message || errorData.error || 
+                           `HTTP error! status: ${response.status}`;
+        throw new Error(errorMessage);
+    }
+    
+    // Retornar JSON da resposta
+    return await response.json();
+}
+    
     function globalManager() {
         return {
             mobileMenuOpen: false, cartOpen: false, loginOpen: false, loginLoading: false, loginStep: 1, 
@@ -262,12 +321,10 @@
                 if(!numero || !email) { alert('Preenche tudo.'); return; }
                 this.loginLoading = true;
                 try {
-                    const response = await fetch(AWS_URL, {
+                    const data = await apiFetch(AWS_URL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ numero: numero, email: email })
                     });
-                    const data = await response.json();
 
                     if (data.valid) {
                         this.tempUserObj = { name: data.nome, number: numero, email: email };

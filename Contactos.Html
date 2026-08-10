@@ -188,6 +188,64 @@
 <script>
   const API_BASE_URL = "https://2xeprvu0zh.execute-api.eu-north-1.amazonaws.com/default/api";
 
+// ============================================
+// WRAPPER DE FETCH CENTRALIZADO COM TOKEN AUTOMÁTICO
+// ============================================
+/**
+ * Função wrapper para fetch que injeta automaticamente o token de autorização
+ * em TODOS os pedidos ao backend.
+ * Se o token existir no localStorage ('fialAuthToken'), ele será adicionado
+ * ao header Authorization: Bearer <TOKEN>
+ * 
+ * @param {string} url - URL do endpoint
+ * @param {Object} options - Opções do fetch (method, headers, body, etc.)
+ * @returns {Promise<any>} - Resposta da API em JSON
+ * @throws {Error} - Lança erro se a resposta não for OK
+ */
+async function apiFetch(url, options = {}) {
+    // Criar novos headers baseados nos headers existentes
+    const headers = new Headers(options.headers || {});
+    
+    // Obter token do localStorage
+    const token = localStorage.getItem('fialAuthToken');
+    
+    // Se token existir, adicionar ao header Authorization
+    if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+    }
+    
+    // Garantir que Content-Type é application/json para POST/PUT/PATCH
+    if (['POST', 'PUT', 'PATCH'].includes((options.method || 'GET').toUpperCase()) && 
+        !headers.get('Content-Type')) {
+        headers.set('Content-Type', 'application/json');
+    }
+    
+    // Criar config final
+    const config = {
+        ...options,
+        headers: headers
+    };
+    
+    // Fazer o request
+    const response = await fetch(url, config);
+    
+    // Verificar se a resposta é OK
+    if (!response.ok) {
+        let errorData;
+        try {
+            errorData = await response.json();
+        } catch (e) {
+            errorData = {};
+        }
+        const errorMessage = errorData.erro || errorData.message || errorData.error || 
+                           `HTTP error! status: ${response.status}`;
+        throw new Error(errorMessage);
+    }
+    
+    // Retornar JSON da resposta
+    return await response.json();
+}
+
     function globalManager() {
         return {
             mobileMenuOpen: false, cartOpen: false, loginOpen: false, loginLoading: false, loginStep: 1, 
@@ -213,13 +271,11 @@
                 if(!this.loginForm.numero || !this.loginForm.email) return;
                 this.loginLoading = true;
                 try {
-                    const res = await fetch(`${API_BASE_URL}/pedir-codigo`, {
+                    const data = await apiFetch(`${API_BASE_URL}/pedir-codigo`, {
                         method: 'POST',
-                        mode: 'cors', // Adicionado modo CORS explicitamente
-                        headers: { 'Content-Type': 'application/json' },
+                        mode: 'cors',
                         body: JSON.stringify({ numero: this.loginForm.numero, email: this.loginForm.email })
                     });
-                    const data = await res.json();
                     if (data.sucesso) {
                         this.tempEmail = this.loginForm.email;
                         this.loginStep = 2; 
@@ -231,14 +287,11 @@
             async verificarCodigo() {
                 if(!this.loginForm.codigo) return;
                 try {
-                    const response = await fetch(`${API_BASE_URL}/verificar-codigo`, {
+                    const data = await apiFetch(`${API_BASE_URL}/verificar-codigo`, {
                         method: 'POST',
-                        mode: 'cors', // Adicionado modo CORS explicitamente
-                        headers: { 'Content-Type': 'application/json' },
+                        mode: 'cors',
                         body: JSON.stringify({ email: this.tempEmail, codigo: this.loginForm.codigo })
                     });
-
-                    const data = await response.json();
 
                     if (data.valid || data.sucesso) { // Suporta ambos os formatos de resposta
                         // Uniformizado para localStorage
@@ -263,13 +316,11 @@
                 if (!this.contactForm.name || !this.contactForm.email || !this.contactForm.message) { alert("Preenche todos os campos obrigatórios."); return; }
                 this.isSending = true;
                 try {
-                    const response = await fetch(`${API_BASE_URL}/contacto`, {
+                    const data = await apiFetch(`${API_BASE_URL}/contacto`, {
                         method: "POST",
                         mode: 'cors',
-                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ nome: this.contactForm.name, email: this.contactForm.email, mensagem: this.contactForm.message })
                     });
-                    const data = await response.json();
                     if (data.sucesso) {
                         alert("Mensagem enviada com sucesso!");
                         this.contactForm.message = ''; 

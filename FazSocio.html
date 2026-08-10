@@ -230,6 +230,64 @@
 <script>
 const API_BASE_URL = "https://2xeprvu0zh.execute-api.eu-north-1.amazonaws.com/default/api";
 
+// ============================================
+// WRAPPER DE FETCH CENTRALIZADO COM TOKEN AUTOMÁTICO
+// ============================================
+/**
+ * Função wrapper para fetch que injeta automaticamente o token de autorização
+ * em TODOS os pedidos ao backend.
+ * Se o token existir no localStorage ('fialAuthToken'), ele será adicionado
+ * ao header Authorization: Bearer <TOKEN>
+ * 
+ * @param {string} url - URL do endpoint
+ * @param {Object} options - Opções do fetch (method, headers, body, etc.)
+ * @returns {Promise<any>} - Resposta da API em JSON
+ * @throws {Error} - Lança erro se a resposta não for OK
+ */
+async function apiFetch(url, options = {}) {
+    // Criar novos headers baseados nos headers existentes
+    const headers = new Headers(options.headers || {});
+    
+    // Obter token do localStorage
+    const token = localStorage.getItem('fialAuthToken');
+    
+    // Se token existir, adicionar ao header Authorization
+    if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+    }
+    
+    // Garantir que Content-Type é application/json para POST/PUT/PATCH
+    if (['POST', 'PUT', 'PATCH'].includes((options.method || 'GET').toUpperCase()) && 
+        !headers.get('Content-Type')) {
+        headers.set('Content-Type', 'application/json');
+    }
+    
+    // Criar config final
+    const config = {
+        ...options,
+        headers: headers
+    };
+    
+    // Fazer o request
+    const response = await fetch(url, config);
+    
+    // Verificar se a resposta é OK
+    if (!response.ok) {
+        let errorData;
+        try {
+            errorData = await response.json();
+        } catch (e) {
+            errorData = {};
+        }
+        const errorMessage = errorData.erro || errorData.message || errorData.error || 
+                           `HTTP error! status: ${response.status}`;
+        throw new Error(errorMessage);
+    }
+    
+    // Retornar JSON da resposta
+    return await response.json();
+}
+
 function globalManager() {
     return {
         mobileMenuOpen: false, loginOpen: false, loginLoading: false, loginStep: 1, cartOpen: false,
@@ -255,12 +313,10 @@ function globalManager() {
                     email: d.email, ice_nome: d.ice_nome, ice_tel: d.ice_tel, mota_detalhes: motaInfo
                 };
 
-                const res = await fetch(`${API_BASE_URL}/inscrever-socio`, {
+                const data = await apiFetch(`${API_BASE_URL}/inscrever-socio`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                const data = await res.json();
                 if (data.sucesso) { this.submitted = true; window.scrollTo({ top: 0, behavior: 'smooth' }); }
                 else { alert(data.erro); }
             } catch (e) { alert("Erro de rede."); }
@@ -272,16 +328,14 @@ function globalManager() {
         async iniciarLogin(numero, email) {
             this.loginLoading = true;
             try {
-                const res = await fetch(`${API_BASE_URL}/pedir-codigo`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ numero, email }) });
-                const data = await res.json();
+                const data = await apiFetch(`${API_BASE_URL}/pedir-codigo`, { method: 'POST', body: JSON.stringify({ numero, email }) });
                 if (data.sucesso) { this.tempEmail = email; this.loginStep = 2; } else { alert(data.erro); }
             } catch (e) { alert("Erro."); } finally { this.loginLoading = false; }
         },
 
         async verificarCodigo(codigo) {
             try {
-                const res = await fetch(`${API_BASE_URL}/verificar-codigo`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: this.tempEmail, codigo }) });
-                const data = await res.json();
+                const data = await apiFetch(`${API_BASE_URL}/verificar-codigo`, { method: 'POST', body: JSON.stringify({ email: this.tempEmail, codigo }) });
                 if (data.valid) { localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome, email: this.tempEmail })); window.location.reload(); }
             } catch (e) { alert("Erro."); }
         },
