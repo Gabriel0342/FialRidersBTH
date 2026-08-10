@@ -181,11 +181,8 @@
 </div>
 
 <script>
-// URL Dinâmica: usa localhost:5000 para desenvolvimento, AWS para produção
-const API_BASE_URL = (window.location.hostname === '127.0.0.1' || 
-                      window.location.hostname === 'localhost')
-    ? 'http://127.0.0.1:5000'
-    : 'https://2xeprvu0zh.execute-api.eu-north-1.amazonaws.com/default/api';
+// URL do Backend - Desenvolvimento Local
+const API_BASE_URL = "http://127.0.0.1:5000";
 
 // Função para mostrar manutenção
 function showMaintenance() {
