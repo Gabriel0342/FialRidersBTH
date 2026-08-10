@@ -220,10 +220,11 @@ function globalManager() {
                     method: 'POST',
                     body: JSON.stringify({ numero, email })
                 });
-                if (data.sucesso) {
+                // Suporta data.sucesso ou data.success
+                if (data.sucesso || data.success) {
                     this.tempEmail = email;
                     this.loginStep = 2;
-                } else { alert(data.erro || "Dados incorretos."); }
+                } else { alert(data.erro || data.error || "Dados incorretos."); }
             } catch (e) { alert("Erro de ligação à AWS."); } 
             finally { this.loginLoading = false; }
         },
@@ -234,10 +235,11 @@ function globalManager() {
                     method: 'POST',
                     body: JSON.stringify({ email: this.tempEmail, codigo: codigo })
                 });
-                if (data.valid) {
-                    localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome, email: this.tempEmail }));
+                // Suporta data.valid ou data.sucesso
+                if (data.valid || data.sucesso) {
+                    localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome || data.name, email: this.tempEmail }));
                     window.location.reload();
-                } else { alert("Código incorreto."); }
+                } else { alert(data.erro || data.error || "Código incorreto."); }
             } catch (e) { alert("Erro na validação."); }
         },
 
@@ -256,7 +258,8 @@ async function loadGallery() {
     try {
         const data = await apiFetch(`${API_BASE_URL}/galeria`);
         
-        albums = data.albums || []; 
+        // Suporta data.albums ou data.albuns
+        albums = data.albums || data.albuns || []; 
         
         renderAlbums();
     } catch (e) { 

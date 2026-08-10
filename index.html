@@ -281,8 +281,15 @@ function globalManager() {
             this.loadingCarousel = true;
             try {
                 const data = await apiFetch(`${API_BASE_URL}/home`);
-                const items = data.products || data.record?.products || [];
-                this.carouselImages = items.map(p => p.images[0]).filter(url => url);
+                // Suporta data.products ou data.produtos
+                const items = data.products || data.produtos || data.record?.products || data.record?.produtos || [];
+                this.carouselImages = items.map(p => {
+                    // Suporta p.images (array) ou p.imagem (string)
+                    if (Array.isArray(p.images) && p.images[0]) return p.images[0];
+                    if (p.imagem) return p.imagem;
+                    if (Array.isArray(p.imagens) && p.imagens[0]) return p.imagens[0];
+                    return null;
+                }).filter(url => url);
             } catch (e) { console.error("Erro Carrossel:", e); }
             finally { this.loadingCarousel = false; }
         },
@@ -291,8 +298,9 @@ function globalManager() {
             this.loadingPartners = true;
             try {
                 const data = await apiFetch(`${API_BASE_URL}/parceiros`);
-                // O Dashboard guarda em 'record.partners'
-                this.partners = data.partners || data.record?.partners || [];
+                // O Dashboard guarda em 'record.partners' ou 'record.parceiros'
+                // Suporta data.partners ou data.parceiros
+                this.partners = data.partners || data.parceiros || data.record?.partners || data.record?.parceiros || [];
             } catch (e) { console.error("Erro Parceiros:", e); }
             finally { this.loadingPartners = false; }
         },
@@ -305,10 +313,11 @@ function globalManager() {
                     method: 'POST',
                     body: JSON.stringify({ numero, email })
                 });
-                if (data.sucesso) {
+                // Suporta data.sucesso ou data.success
+                if (data.sucesso || data.success) {
                     this.tempEmail = email;
                     this.loginStep = 2; 
-                } else { alert(data.erro || "Sócio não encontrado."); }
+                } else { alert(data.erro || data.error || "Sócio não encontrado."); }
             } catch (e) { alert("Erro de rede."); } 
             finally { this.loginLoading = false; }
         },
@@ -319,10 +328,11 @@ function globalManager() {
                     method: 'POST',
                     body: JSON.stringify({ email: this.tempEmail, codigo })
                 });
-                if (data.valid) {
-                    localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome, email: this.tempEmail }));
+                // Suporta data.valid ou data.sucesso
+                if (data.valid || data.sucesso) {
+                    localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome || data.name, email: this.tempEmail }));
                     window.location.reload(); 
-                } else { alert("Código incorreto."); }
+                } else { alert(data.erro || data.error || "Código incorreto."); }
             } catch (e) { alert("Erro na validação."); }
         },
 

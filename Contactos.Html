@@ -277,10 +277,11 @@ async function apiFetch(url, options = {}) {
                         mode: 'cors',
                         body: JSON.stringify({ numero: this.loginForm.numero, email: this.loginForm.email })
                     });
-                    if (data.sucesso) {
+                    // Suporta data.sucesso ou data.success
+                    if (data.sucesso || data.success) {
                         this.tempEmail = this.loginForm.email;
                         this.loginStep = 2; 
-                    } else { alert(data.erro || "Sócio não encontrado."); }
+                    } else { alert(data.erro || data.error || "Sócio não encontrado."); }
                 } catch (e) { alert("Erro de ligação com a API."); } 
                 finally { this.loginLoading = false; }
             },
@@ -297,12 +298,12 @@ async function apiFetch(url, options = {}) {
                     if (data.valid || data.sucesso) { // Suporta ambos os formatos de resposta
                         // Uniformizado para localStorage
                         localStorage.setItem('fialAuthToken', data.token || 'dummy_token_contactos');
-                        localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome || 'Sócio Fial', email: this.tempEmail }));
+                        localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome || data.name || 'Sócio Fial', email: this.tempEmail }));
                         
-                        this.currentUser = { name: data.nome || 'Sócio Fial', email: this.tempEmail };
+                        this.currentUser = { name: data.nome || data.name || 'Sócio Fial', email: this.tempEmail };
                         this.loginOpen = false;
                         window.location.reload();
-                    } else { alert(data.erro || "Código inválido ou expirado."); }
+                    } else { alert(data.erro || data.error || "Código inválido ou expirado."); }
                 } catch (e) { alert("Erro ao processar a validação."); }
             },
 
@@ -322,10 +323,11 @@ async function apiFetch(url, options = {}) {
                         mode: 'cors',
                         body: JSON.stringify({ nome: this.contactForm.name, email: this.contactForm.email, mensagem: this.contactForm.message })
                     });
-                    if (data.sucesso) {
+                    // Suporta data.sucesso ou data.success
+                    if (data.sucesso || data.success) {
                         alert("Mensagem enviada com sucesso!");
                         this.contactForm.message = ''; 
-                    } else { alert(data.erro || "Ocorreu um erro no envio."); }
+                    } else { alert(data.erro || data.error || "Ocorreu um erro no envio."); }
                 } catch (error) { alert("Erro de ligação com o servidor de email."); }
                 finally { this.isSending = false; }
             },

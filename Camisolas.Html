@@ -418,8 +418,11 @@ function shopManager() {
                 
                 let produtosExtraidos = [];
 
+                // Suporta multiplos formatos: data.products, data.produtos, data.record.products, etc.
                 if (Array.isArray(data)) {
                     produtosExtraidos = data;
+                } else if (data.produtos && Array.isArray(data.produtos)) {
+                    produtosExtraidos = data.produtos;
                 } else if (data.record && Array.isArray(data.record)) {
                     produtosExtraidos = data.record;
                 } else if (data.record && data.record.products) {
@@ -430,7 +433,22 @@ function shopManager() {
                     console.warn("Aviso: Formato de JSON não reconhecido.", data);
                 }
 
-                this.products = produtosExtraidos;
+                // Normaliza os campos dos produtos para o formato esperado pelo frontend
+                this.products = produtosExtraidos.map(product => {
+                    return {
+                        id: product.id || product.ID || Math.floor(Math.random() * 10000),
+                        name: product.nome || product.name || product.title || "Produto",
+                        desc: product.descricao || product.desc || product.description || "",
+                        priceNormal: product.preco || product.preco_normal || product.priceNormal || product.price || 0,
+                        priceMember: product.preco_socio || product.priceMember || product.preco || product.price || 0,
+                        images: Array.isArray(product.imagem) 
+                            ? product.imagem 
+                            : product.imagem 
+                                ? [product.imagem] 
+                                : product.images || ["https://via.placeholder.com/400x500?text=Sem+Imagem"],
+                        colors: product.cores || product.colors || ["Único"]
+                    };
+                });
 
             } catch (e) {
                 console.error("Falha a carregar o catálogo: ", e);
@@ -448,10 +466,11 @@ function shopManager() {
                     method: 'POST',
                     body: JSON.stringify({ numero, email })
                 });
-                if (data.sucesso) {
+                // Suporta data.sucesso ou data.success
+                if (data.sucesso || data.success) {
                     this.tempEmail = email;
                     this.loginStep = 2; 
-                } else { alert(data.erro || "Sócio não encontrado."); }
+                } else { alert(data.erro || data.error || "Sócio não encontrado."); }
             } catch (e) { alert("Erro de rede."); } 
             finally { this.loginLoading = false; }
         },
@@ -463,16 +482,17 @@ function shopManager() {
                     body: JSON.stringify({ email: this.tempEmail, codigo: input })
                 });
 
-                if (data.valid && data.token) {
+                // Suporta data.valid ou data.sucesso
+                if ((data.valid && data.token) || (data.sucesso && data.token)) {
                     // CORREÇÃO: Utilizar localStorage em vez de sessionStorage
                     localStorage.setItem('fialAuthToken', data.token);
-                    localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome }));
+                    localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome || data.name }));
                     
-                    this.currentUser = { name: data.nome };
+                    this.currentUser = { name: data.nome || data.name };
                     this.loginOpen = false;
                     window.location.reload();
                 } else { 
-                    alert(data.erro || "Código inválido ou expirado."); 
+                    alert(data.erro || data.error || "Código inválido ou expirado."); 
                 }
             } catch (e) {
                 alert("Ocorreu um erro a processar a validação do teu código.");

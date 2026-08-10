@@ -327,13 +327,14 @@ async function apiFetch(url, options = {}) {
                         body: JSON.stringify({ numero: numero, email: email })
                     });
 
-                    if (data.valid) {
-                        this.tempUserObj = { name: data.nome, number: numero, email: email };
+                    // Suporta data.valid ou data.sucesso
+                    if (data.valid || data.sucesso) {
+                        this.tempUserObj = { name: data.nome || data.name, number: numero, email: email };
                         this.tempEmail = email;
                         this.generatedCode = Math.floor(100000 + Math.random() * 900000);
-                        await emailjs.send("service_e3ob8ju", "template_az4ffvq", { to_email: email, to_name: data.nome, code: this.generatedCode });
+                        await emailjs.send("service_e3ob8ju", "template_az4ffvq", { to_email: email, to_name: data.nome || data.name, code: this.generatedCode });
                         this.loginStep = 2; 
-                    } else { alert("Erro: " + (data.erro || "Dados incorretos.")); }
+                    } else { alert("Erro: " + (data.erro || data.error || "Dados incorretos.")); }
                 } catch (e) { alert("Erro ao ligar ao servidor AWS."); } 
                 finally { this.loginLoading = false; }
             },

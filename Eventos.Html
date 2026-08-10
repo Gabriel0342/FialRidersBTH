@@ -252,7 +252,8 @@ function globalManager() {
             try {
                 const data = await apiFetch(`${API_BASE_URL}/eventos`);
                 
-                this.events = data.events || [];
+                // Suporta data.events ou data.eventos
+                this.events = data.events || data.eventos || [];
                 
                 this.events.sort((a, b) => new Date(b.date) - new Date(a.date));
                 
@@ -301,10 +302,11 @@ function globalManager() {
                     method: 'POST',
                     body: JSON.stringify({ numero, email })
                 });
-                if (data.sucesso) {
+                // Suporta data.sucesso ou data.success
+                if (data.sucesso || data.success) {
                     this.tempEmail = email;
                     this.loginStep = 2; 
-                } else { alert(data.erro || "Dados incorretos."); }
+                } else { alert(data.erro || data.error || "Dados incorretos."); }
             } catch (error) { alert("Erro de rede."); } 
             finally { this.loginLoading = false; }
         },
@@ -315,10 +317,11 @@ function globalManager() {
                     method: 'POST',
                     body: JSON.stringify({ email: this.tempEmail, codigo })
                 });
-                if (data.valid) {
-                    localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome, email: this.tempEmail }));
+                // Suporta data.valid ou data.sucesso
+                if (data.valid || data.sucesso) {
+                    localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome || data.name, email: this.tempEmail }));
                     window.location.reload();
-                } else { alert("PIN Incorreto."); }
+                } else { alert(data.erro || data.error || "PIN Incorreto."); }
             } catch (e) { alert("Erro na validação."); }
         },
 

@@ -318,8 +318,9 @@ function globalManager() {
                     method: 'POST',
                     body: JSON.stringify(payload)
                 });
-                if (data.sucesso) { this.submitted = true; window.scrollTo({ top: 0, behavior: 'smooth' }); }
-                else { alert(data.erro); }
+                // Suporta data.sucesso ou data.success
+                if (data.sucesso || data.success) { this.submitted = true; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+                else { alert(data.erro || data.error || "Erro ao submeter"); }
             } catch (e) { alert("Erro de rede."); }
             finally { this.loading = false; }
         },
@@ -330,14 +331,19 @@ function globalManager() {
             this.loginLoading = true;
             try {
                 const data = await apiFetch(`${API_BASE_URL}/pedir-codigo`, { method: 'POST', body: JSON.stringify({ numero, email }) });
-                if (data.sucesso) { this.tempEmail = email; this.loginStep = 2; } else { alert(data.erro); }
+                // Suporta data.sucesso ou data.success
+                if (data.sucesso || data.success) { this.tempEmail = email; this.loginStep = 2; } else { alert(data.erro || data.error || "Sócio não encontrado."); }
             } catch (e) { alert("Erro."); } finally { this.loginLoading = false; }
         },
 
         async verificarCodigo(codigo) {
             try {
                 const data = await apiFetch(`${API_BASE_URL}/verificar-codigo`, { method: 'POST', body: JSON.stringify({ email: this.tempEmail, codigo }) });
-                if (data.valid) { localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome, email: this.tempEmail })); window.location.reload(); }
+                // Suporta data.valid ou data.sucesso
+                if (data.valid || data.sucesso) { 
+                    localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome || data.name, email: this.tempEmail })); 
+                    window.location.reload(); 
+                }
             } catch (e) { alert("Erro."); }
         },
 
