@@ -305,6 +305,9 @@ function globalManager() {
         },
         async iniciarLogin(numero, email) {
             if(!numero || !email) return;
+            // Limpa carrinho ao iniciar login
+            this.cart = [];
+            localStorage.removeItem('fialCart');
             this.loginLoading = true;
             try {
                 const data = await apiFetch(`${API_BASE_URL}/pedir-codigo`, {

@@ -270,6 +270,9 @@ async function apiFetch(url, options = {}) {
             // Login JS Atualizado e Uniformizado
             async iniciarLogin() {
                 if(!this.loginForm.numero || !this.loginForm.email) return;
+                // Limpa carrinho ao iniciar login
+                this.cart = [];
+                localStorage.removeItem('fialCart');
                 this.loginLoading = true;
                 try {
                     const data = await apiFetch(`${API_BASE_URL}/pedir-codigo`, {
