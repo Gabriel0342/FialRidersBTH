@@ -148,7 +148,7 @@
             <div class="animate-ticker flex items-center">
                 <template x-for="p in [...partners, ...partners]" :key="Math.random()">
                     <div class="flex-shrink-0 pr-20">
-                        <img :src="p.logo" :alt="p.name" class="h-20 md:h-28 w-auto grayscale hover:grayscale-0 transition duration-500 opacity-70 hover:opacity-100">
+                        <img :src="p.logo" :alt="p.nome" class="h-20 md:h-28 w-auto grayscale hover:grayscale-0 transition duration-500 opacity-70 hover:opacity-100">
                     </div>
                 </template>
             </div>
@@ -284,10 +284,15 @@ function globalManager() {
                 // Suporta data.products ou data.produtos
                 const items = data.products || data.produtos || data.record?.products || data.record?.produtos || [];
                 this.carouselImages = items.map(p => {
-                    // Suporta p.images (array) ou p.imagem (string)
+                    // Normaliza os campos (suporta PT e EN)
+                    const images = p.imagens || p.images || [];
+                    const imagem = p.imagem || p.image || '';
+                    
+                    // Suporta array ou string
+                    if (Array.isArray(images) && images[0]) return images[0];
+                    if (imagem) return imagem;
                     if (Array.isArray(p.images) && p.images[0]) return p.images[0];
                     if (p.imagem) return p.imagem;
-                    if (Array.isArray(p.imagens) && p.imagens[0]) return p.imagens[0];
                     return null;
                 }).filter(url => url);
             } catch (e) { console.error("Erro Carrossel:", e); }
@@ -300,7 +305,14 @@ function globalManager() {
                 const data = await apiFetch(`${API_BASE_URL}/parceiros`);
                 // O Dashboard guarda em 'record.partners' ou 'record.parceiros'
                 // Suporta data.partners ou data.parceiros
-                this.partners = data.partners || data.parceiros || data.record?.partners || data.record?.parceiros || [];
+                let partnersData = data.partners || data.parceiros || data.record?.partners || data.record?.parceiros || [];
+                
+                // Normaliza os campos (suporta PT e EN)
+                this.partners = partnersData.map(p => ({
+                    id: p.id || p.ID || Math.random(),
+                    nome: p.nome || p.name || "",
+                    logo: p.logo || p.logotipo || ""
+                }));
             } catch (e) { console.error("Erro Parceiros:", e); }
             finally { this.loadingPartners = false; }
         },
