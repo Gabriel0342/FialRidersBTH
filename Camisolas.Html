@@ -334,7 +334,7 @@
 <script>
 
 // URL do Backend - Desenvolvimento Local
-const API_BASE_URL = "http://127.0.0.1:5000";
+const API_BASE_URL = "http://172.22.224.1:5000";
 
 // ============================================
 // WRAPPER DE FETCH CENTRALIZADO COM TOKEN AUTOMÁTICO
@@ -435,17 +435,42 @@ function shopManager() {
 
                 // Normaliza os campos dos produtos para o formato esperado pelo frontend
                 this.products = produtosExtraidos.map(product => {
+                    // Função para normalizar URLs de imagens
+                    const normalizeImageUrl = (url) => {
+                        if (!url) return null;
+                        // Se já for URL absoluta, mantém
+                        if (typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'))) {
+                            return url;
+                        }
+                        // Se for caminho relativo, prefixa com API_BASE_URL
+                        if (typeof url === 'string' && !url.startsWith('data:')) {
+                            // Remove leading slash se existir para evitar // na URL
+                            const cleanUrl = url.startsWith('/') ? url.substring(1) : url;
+                            return `${API_BASE_URL}/${cleanUrl}`;
+                        }
+                        return url;
+                    };
+
+                    // Normaliza imagens (suporta imagem ou images)
+                    let productImages = [];
+                    if (Array.isArray(product.imagem)) {
+                        productImages = product.imagem.map(normalizeImageUrl).filter(Boolean);
+                    } else if (product.imagem) {
+                        const normalized = normalizeImageUrl(product.imagem);
+                        if (normalized) productImages = [normalized];
+                    } else if (product.images) {
+                        productImages = (Array.isArray(product.images) ? product.images : [product.images])
+                            .map(normalizeImageUrl)
+                            .filter(Boolean);
+                    }
+
                     return {
                         id: product.id || product.ID || Math.floor(Math.random() * 10000),
                         name: product.nome || product.name || product.title || "Produto",
                         desc: product.descricao || product.desc || product.description || "",
                         priceNormal: product.preco || product.preco_normal || product.priceNormal || product.price || 0,
                         priceMember: product.preco_socio || product.priceMember || product.preco || product.price || 0,
-                        images: Array.isArray(product.imagem) 
-                            ? product.imagem 
-                            : product.imagem 
-                                ? [product.imagem] 
-                                : product.images || ["https://via.placeholder.com/400x500?text=Sem+Imagem"],
+                        images: productImages.length > 0 ? productImages : ["https://via.placeholder.com/400x500?text=Sem+Imagem"],
                         colors: product.cores || product.colors || ["Único"]
                     };
                 });
