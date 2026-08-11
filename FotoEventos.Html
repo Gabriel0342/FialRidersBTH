@@ -114,7 +114,13 @@
     <main class="pt-24 px-4 pb-12 max-w-7xl mx-auto w-full flex-grow">
         <div id="albumsView">
             <div class="flex justify-between items-center mb-8 border-b border-stone-700 pb-4">
-                <h1 class="text-3xl font-bold text-white uppercase tracking-widest drop-shadow-md">Arquivo de Missões</h1>
+                <h1 class="text-3xl font-bold text-white uppercase tracking-widest drop-shadow-md">
+                    <span x-text="selectedEvent ? 'Fotos: ' + selectedEvent : 'Arquivo de Missões'"></span>
+                </h1>
+                <button x-show="selectedEvent" onclick="window.location.href='./FotoEventos.Html'" class="text-stone-400 hover:text-white text-sm uppercase tracking-wide transition flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    Todos os Álbuns
+                </button>
                 </div>
             <div id="albumsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
             <p id="noAlbumsMsg" class="hidden text-center text-stone-500 mt-10 text-lg italic">Nenhum registo de estrada encontrado.</p>
@@ -206,10 +212,13 @@ function globalManager() {
         currentUser: JSON.parse(localStorage.getItem('fialCurrentUser')) || null,
         mobileMenuOpen: false, loginOpen: false, loginStep: 1, loginLoading: false,
         tempEmail: '', tempUserObj: null, generatedCode: null,
+        selectedEvent: null,
 
         init() {
             emailjs.init("5-A7FAUYnTTw369zD");
-            loadGallery(); 
+            // Ler o evento da URL
+            this.selectedEvent = getUrlParam('evento');
+            loadGallery(this.selectedEvent); 
         },
 
         async iniciarLogin(numero, email) {
@@ -254,7 +263,13 @@ function globalManager() {
 let albums = [];
 let currentAlbumId = null;
 
-async function loadGallery() {
+// Ler parâmetro de evento da URL
+function getUrlParam(name) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(name);
+}
+
+async function loadGallery(selectedEventParam = null) {
     try {
         const data = await apiFetch(`${API_BASE_URL}/galeria`);
         
@@ -262,12 +277,22 @@ async function loadGallery() {
         let albumsData = data.albums || data.albuns || (Array.isArray(data) ? data : []);
         
         // Normaliza os campos (suporta PT e EN)
-        albums = albumsData.map(album => ({
+        let allAlbums = albumsData.map(album => ({
             id: album.id || album.ID || Math.random(),
             titulo: album.titulo || album.title || "",
             data: album.data || album.date || "",
             photos: album.fotos || album.photos || []
         }));
+        
+        // Filtrar por evento se estivermos vindo da página de eventos
+        if (selectedEventParam) {
+            albums = allAlbums.filter(album => 
+                album.titulo === selectedEventParam || 
+                album.titulo === decodeURIComponent(selectedEventParam)
+            );
+        } else {
+            albums = allAlbums;
+        }
         
         renderAlbums();
     } catch (e) { 
