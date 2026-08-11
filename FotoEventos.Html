@@ -258,8 +258,16 @@ async function loadGallery() {
     try {
         const data = await apiFetch(`${API_BASE_URL}/galeria`);
         
-        // Suporta data.albums ou data.albuns
-        albums = data.albums || data.albuns || []; 
+        // Suporta data.albums, data.albuns ou data diretamente
+        let albumsData = data.albums || data.albuns || (Array.isArray(data) ? data : []);
+        
+        // Normaliza os campos (suporta PT e EN)
+        albums = albumsData.map(album => ({
+            id: album.id || album.ID || Math.random(),
+            titulo: album.titulo || album.title || "",
+            data: album.data || album.date || "",
+            photos: album.fotos || album.photos || []
+        }));
         
         renderAlbums();
     } catch (e) { 
@@ -294,8 +302,8 @@ function renderAlbums() {
                 </div>
             </div>
             <div class="p-4 border-t border-stone-800">
-                <h3 class="font-bold text-lg text-white truncate uppercase tracking-wide">${album.title}</h3>
-                <p class="text-[10px] text-stone-500 font-mono mt-1">${formatDate(album.date)}</p>
+                <h3 class="font-bold text-lg text-white truncate uppercase tracking-wide">${album.titulo}</h3>
+                <p class="text-[10px] text-stone-500 font-mono mt-1">${formatDate(album.data)}</p>
             </div>`;
         grid.appendChild(card);
     });
@@ -306,7 +314,7 @@ function renderPhotos() {
     const grid = document.getElementById('photosGrid');
     if(!grid || !album) return;
     grid.innerHTML = '';
-    document.getElementById('currentAlbumTitle').innerText = album.title;
+    document.getElementById('currentAlbumTitle').innerText = album.titulo;
 
     album.photos.forEach((photo) => {
         const div = document.createElement('div');
