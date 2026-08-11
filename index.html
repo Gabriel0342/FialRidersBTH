@@ -281,20 +281,68 @@ function globalManager() {
             this.loadingCarousel = true;
             try {
                 const data = await apiFetch(`${API_BASE_URL}/carrossel`);
-                // Suporta data.products ou data.produtos
-                const items = data.products || data.produtos || data.record?.products || data.record?.produtos || [];
-                this.carouselImages = items.map(p => {
-                    // Normaliza os campos (suporta PT e EN)
-                    const images = p.imagens || p.images || [];
-                    const imagem = p.imagem || p.image || '';
+                
+                // Suporta múltiplos formatos de resposta
+                let rawItems = [];
+                
+                // Formato 1: Array direto de fotos
+                if (Array.isArray(data)) {
+                    rawItems = data;
+                }
+                // Formato 2: Objeto com fotos/photos/imagens/images
+                else if (data.fotos) {
+                    rawItems = data.fotos;
+                } else if (data.photos) {
+                    rawItems = data.photos;
+                } else if (data.imagens) {
+                    rawItems = data.imagens;
+                } else if (data.images) {
+                    rawItems = data.images;
+                }
+                // Formato 3: Produtos (legacy)
+                else if (data.products) {
+                    rawItems = data.products;
+                } else if (data.produtos) {
+                    rawItems = data.produtos;
+                }
+                // Formato 4: Record com produtos
+                else if (data.record?.products) {
+                    rawItems = data.record.products;
+                } else if (data.record?.produtos) {
+                    rawItems = data.record.produtos;
+                }
+                // Formato 5: Record com fotos
+                else if (data.record?.fotos) {
+                    rawItems = data.record.fotos;
+                } else if (data.record?.photos) {
+                    rawItems = data.record.photos;
+                }
+                
+                // Extrair URLs das fotos
+                this.carouselImages = rawItems.map(item => {
+                    // Se o item já for uma string (URL direta)
+                    if (typeof item === 'string') {
+                        return item;
+                    }
                     
-                    // Suporta array ou string
-                    if (Array.isArray(images) && images[0]) return images[0];
-                    if (imagem) return imagem;
-                    if (Array.isArray(p.images) && p.images[0]) return p.images[0];
-                    if (p.imagem) return p.imagem;
+                    // Se o item for um objeto com URL
+                    if (typeof item === 'object' && item !== null) {
+                        // Tenta vários campos possíveis
+                        if (item.url) return item.url;
+                        if (item.URL) return item.URL;
+                        if (item.imagem) return item.imagem;
+                        if (item.image) return item.image;
+                        
+                        // Se tiver array de imagens
+                        if (Array.isArray(item.imagens) && item.imagens[0]) return item.imagens[0];
+                        if (Array.isArray(item.images) && item.images[0]) return item.images[0];
+                        if (Array.isArray(item.fotos) && item.fotos[0]) return item.fotos[0];
+                        if (Array.isArray(item.photos) && item.photos[0]) return item.photos[0];
+                    }
+                    
                     return null;
-                }).filter(url => url);
+                }).filter(url => url && typeof url === 'string');
+                
             } catch (e) { console.error("Erro Carrossel:", e); }
             finally { this.loadingCarousel = false; }
         },
