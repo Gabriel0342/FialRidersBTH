@@ -295,7 +295,7 @@ async function apiFetch(url, options = {}) {
                         body: JSON.stringify({ email: this.tempEmail, codigo: this.loginForm.codigo })
                     });
 
-                    if (data.valid || data.sucesso) { // Suporta ambos os formatos de resposta
+                    if (data.success || data.valid || data.sucesso) { // Suporta todos os formatos de resposta
                         // Uniformizado para localStorage
                         localStorage.setItem('fialAuthToken', data.token || 'dummy_token_contactos');
                         localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome || data.name || 'Sócio Fial', email: this.tempEmail }));

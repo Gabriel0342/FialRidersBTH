@@ -326,8 +326,8 @@ function globalManager() {
                     method: 'POST',
                     body: JSON.stringify({ email: this.tempEmail, codigo })
                 });
-                // Suporta data.valid ou data.sucesso
-                if (data.valid || data.sucesso) {
+                // Suporta data.success, data.valid ou data.sucesso
+                if (data.success || data.valid || data.sucesso) {
                     localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome || data.name, email: this.tempEmail }));
                     window.location.reload();
                 } else { alert(data.erro || data.error || "PIN Incorreto."); }

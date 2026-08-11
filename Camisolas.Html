@@ -512,8 +512,8 @@ function shopManager() {
                     body: JSON.stringify({ email: this.tempEmail, codigo: input })
                 });
 
-                // Suporta data.valid ou data.sucesso
-                if ((data.valid && data.token) || (data.sucesso && data.token)) {
+                // Suporta data.success, data.valid ou data.sucesso
+                if ((data.success && data.token) || (data.valid && data.token) || (data.sucesso && data.token)) {
                     // CORREÇÃO: Utilizar localStorage em vez de sessionStorage
                     localStorage.setItem('fialAuthToken', data.token);
                     localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome || data.name }));

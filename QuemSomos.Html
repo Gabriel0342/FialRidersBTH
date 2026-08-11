@@ -247,7 +247,7 @@
 
 <script>
 // URL do Backend - Desenvolvimento Local
-    const AWS_URL = "http://172.22.224.1:5000/dev/api/verificar-socio";
+    const API_BASE_URL = "http://172.22.224.1:5000";
 
 // ============================================
 // WRAPPER DE FETCH CENTRALIZADO COM TOKEN AUTOMÁTICO
@@ -322,28 +322,32 @@ async function apiFetch(url, options = {}) {
                 if(!numero || !email) { alert('Preenche tudo.'); return; }
                 this.loginLoading = true;
                 try {
-                    const data = await apiFetch(AWS_URL, {
+                    const data = await apiFetch(`${API_BASE_URL}/pedir-codigo`, {
                         method: 'POST',
                         body: JSON.stringify({ numero: numero, email: email })
                     });
-
-                    // Suporta data.valid ou data.sucesso
-                    if (data.valid || data.sucesso) {
+                    // Suporta data.sucesso ou data.success
+                    if (data.sucesso || data.success) {
                         this.tempUserObj = { name: data.nome || data.name, number: numero, email: email };
                         this.tempEmail = email;
-                        this.generatedCode = Math.floor(100000 + Math.random() * 900000);
-                        await emailjs.send("service_e3ob8ju", "template_az4ffvq", { to_email: email, to_name: data.nome || data.name, code: this.generatedCode });
                         this.loginStep = 2; 
                     } else { alert("Erro: " + (data.erro || data.error || "Dados incorretos.")); }
-                } catch (e) { alert("Erro ao ligar ao servidor AWS."); } 
+                } catch (e) { alert("Erro ao ligar ao servidor."); } 
                 finally { this.loginLoading = false; }
             },
 
-            verificarCodigo(codigo) {
-                if (parseInt(codigo) === this.generatedCode) {
-                    localStorage.setItem('fialCurrentUser', JSON.stringify(this.tempUserObj));
-                    window.location.reload(); 
-                } else { alert("Código incorreto."); }
+            async verificarCodigo(codigo) {
+                try {
+                    const data = await apiFetch(`${API_BASE_URL}/verificar-codigo`, {
+                        method: 'POST',
+                        body: JSON.stringify({ email: this.tempEmail, codigo: codigo })
+                    });
+                    // Suporta data.success, data.valid ou data.sucesso
+                    if (data.success || data.valid || data.sucesso) {
+                        localStorage.setItem('fialCurrentUser', JSON.stringify(this.tempUserObj));
+                        window.location.reload(); 
+                    } else { alert(data.erro || data.error || "Código incorreto."); }
+                } catch (e) { alert("Erro na validação."); }
             },
 
             logout() { 
