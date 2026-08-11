@@ -6,6 +6,7 @@
     <title>Fial Riders - Merchandising</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         body { margin: 0; color: white; min-height: 100vh; position: relative; overflow-x: hidden; }
         body::before {
@@ -414,6 +415,7 @@ function shopManager() {
         checkoutForm: { name: '', email: '', address: '', zip: '', city: '', phone: '' },
 
         init() {
+            emailjs.init("5-A7FAUYnTTw369zD");
             this.loadProductsFromCloud();
         },
 
@@ -618,6 +620,26 @@ function shopManager() {
                 });
                 
                 if (response.success || response.sucesso) {
+                    // Enviar email de confirmação via EmailJS
+                    try {
+                        await emailjs.send(
+                            "service_e3ob8ju",
+                            "template_encomenda",
+                            {
+                                to_email: email,
+                                to_name: nomeCompleto,
+                                encomenda_items: items.map(i => `${i.nome} - ${i.preco}€`).join(", "),
+                                encomenda_total: total + "€",
+                                morada: morada,
+                                cidade: cidade,
+                                codigo_postal: codigoPostal
+                            }
+                        );
+                    } catch (emailError) {
+                        console.error("Erro ao enviar email:", emailError);
+                        // Não falhar a encomenda se o email não for enviado
+                    }
+                    
                     alert("Encomenda recebida com sucesso! Obrigado pela tua compra.");
                     localStorage.removeItem('fialCart');
                     this.cart = [];
