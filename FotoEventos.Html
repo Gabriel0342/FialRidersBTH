@@ -267,18 +267,44 @@ function getUrlParam(name) {
 
 async function loadGallery(selectedEventParam = null) {
     try {
-        const data = await apiFetch(`${API_BASE_URL}/galeria`);
+        const data = await apiFetch(`${API_BASE_URL}/fotos`);
         
-        // Suporta data.albums, data.albuns ou data diretamente
-        let albumsData = data.albums || data.albuns || (Array.isArray(data) ? data : []);
+        // Suporta data.fotos, data.photos ou data diretamente
+        let fotosData = data.fotos || data.photos || (Array.isArray(data) ? data : []);
         
-        // Normaliza os campos (suporta PT e EN)
-        let allAlbums = albumsData.map(album => ({
-            id: album.id || album.ID || Math.random(),
-            titulo: album.titulo || album.title || "",
-            data: album.data || album.date || "",
-            photos: album.fotos || album.photos || []
-        }));
+        // Agrupar fotos por evento para criar álbuns virtuais
+        const albumsMap = new Map();
+        
+        fotosData.forEach(foto => {
+            // Normaliza os campos (suporta PT e EN)
+            const eventoTitulo = foto.evento_titulo || foto.evento_title || foto.evento || "Sem Evento";
+            const eventoData = foto.evento_data || foto.evento_date || "";
+            const fotoUrl = foto.url || foto.URL || foto.imagem || "";
+            const fotoTitulo = foto.titulo || foto.title || `Foto ${foto.id}`;
+            
+            if (!fotoUrl) return; // Ignora se não tiver URL
+            
+            // Se não houver álbum para este evento, cria um novo
+            if (!albumsMap.has(eventoTitulo)) {
+                albumsMap.set(eventoTitulo, {
+                    id: foto.evento_id || Math.random(),
+                    titulo: eventoTitulo,
+                    data: eventoData,
+                    photos: []
+                });
+            }
+            
+            // Adiciona a foto ao álbum correspondente
+            albumsMap.get(eventoTitulo).photos.push({
+                id: foto.id || Math.random(),
+                titulo: fotoTitulo,
+                url: fotoUrl,
+                descricao: foto.descricao || foto.description || ""
+            });
+        });
+        
+        // Converter Map para array
+        let allAlbums = Array.from(albumsMap.values());
         
         // Filtrar por evento se estivermos vindo da página de eventos
         if (selectedEventParam) {
@@ -290,10 +316,13 @@ async function loadGallery(selectedEventParam = null) {
             albums = allAlbums;
         }
         
+        // Ordenar por data (mais recentes primeiro)
+        albums.sort((a, b) => new Date(b.data) - new Date(a.data));
+        
         renderAlbums();
     } catch (e) { 
         console.error("Erro:", e);
-        document.getElementById('albumsGrid').innerHTML = '<p class="col-span-full text-center text-stone-500">Erro ao carregar os registos de estrada.</p>';
+        document.getElementById('albumsGrid').innerHTML = '<p class="col-span-full text-center text-stone-500">Erro ao carregar as fotos dos eventos.</p>';
     }
 }
 
@@ -310,7 +339,8 @@ function renderAlbums() {
     document.getElementById('noAlbumsMsg').classList.add('hidden');
 
     albums.forEach(album => {
-        const cover = (album.photos && album.photos.length > 0) ? album.photos[0] : 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=400';
+        const cover = (album.photos && album.photos.length > 0) ? album.photos[0].url : 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=400';
+        const photosCount = album.photos ? album.photos.length : 0;
         
         const card = document.createElement('div');
         card.className = 'folder-card bg-stone-900/60 border border-stone-800 rounded-xl overflow-hidden cursor-pointer shadow-lg backdrop-blur-sm hover:border-green-700 transition-all';
@@ -319,7 +349,7 @@ function renderAlbums() {
             <div class="h-48 w-full bg-stone-800 relative overflow-hidden">
                 <img src="${cover}" class="w-full h-full object-cover opacity-60 hover:opacity-100 transition duration-500">
                 <div class="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded text-[10px] text-green-500 font-bold border border-green-900 uppercase">
-                    ${album.photos ? album.photos.length : 0} Fotos
+                    ${photosCount} Fotos
                 </div>
             </div>
             <div class="p-4 border-t border-stone-800">
@@ -341,8 +371,10 @@ function renderPhotos() {
         const div = document.createElement('div');
         div.className = 'relative group aspect-square rounded-lg overflow-hidden bg-stone-800 border border-stone-700 shadow-md';
         div.innerHTML = `
-            <img src="${photo}" class="w-full h-full object-cover transition duration-500 hover:scale-110 cursor-zoom-in" 
-                 onclick="window.open('${photo}', '_blank')">
+            <img src="${photo.url}" 
+                 alt="${photo.titulo}" 
+                 class="w-full h-full object-cover transition duration-500 hover:scale-110 cursor-zoom-in"
+                 onclick="window.open('${photo.url}', '_blank')">
         `;
         grid.appendChild(div);
     });
