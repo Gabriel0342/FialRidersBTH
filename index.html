@@ -280,7 +280,7 @@ function globalManager() {
         async loadHomeCarousel() {
             this.loadingCarousel = true;
             try {
-                const data = await apiFetch(`${API_BASE_URL}/home`);
+                const data = await apiFetch(`${API_BASE_URL}/carrossel`);
                 // Suporta data.products ou data.produtos
                 const items = data.products || data.produtos || data.record?.products || data.record?.produtos || [];
                 this.carouselImages = items.map(p => {
