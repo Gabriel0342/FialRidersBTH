@@ -304,7 +304,7 @@ async function apiFetch(url, options = {}) {
     }
     
     // Retornar JSON da resposta
-    return await response.json();
+    try { return await response.json(); } catch (e) { console.error("Erro ao parsear JSON:", e); return {}; }
 }
     
     function globalManager() {

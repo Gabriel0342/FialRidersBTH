@@ -391,7 +391,13 @@ async function apiFetch(url, options = {}) {
     }
     
     // Retornar JSON da resposta
-    return await response.json();
+    try {
+        return await response.json();
+    } catch (e) {
+        // Se falhar ao parsear JSON, retornar objeto vazio para não quebrar o fluxo
+        console.error("Erro ao parsear JSON:", e);
+        return {};
+    }
 }
 
 function shopManager() {
@@ -506,6 +512,8 @@ function shopManager() {
         },
 
         async verificarCodigo(input) {
+            if(!input) { alert("Por favor, insira o código."); return; }
+            if(!this.tempEmail) { alert("Email não encontrado. Tente novamente."); return; }
             try {
                 const data = await apiFetch(`${API_BASE_URL}/verificar-codigo`, {
                     method: 'POST',
@@ -513,12 +521,14 @@ function shopManager() {
                 });
 
                 // Suporta data.success, data.valid ou data.sucesso
-                if ((data.success && data.token) || (data.valid && data.token) || (data.sucesso && data.token)) {
-                    // CORREÇÃO: Utilizar localStorage em vez de sessionStorage
-                    localStorage.setItem('fialAuthToken', data.token);
-                    localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome || data.name }));
+                if (data.success || data.valid || data.sucesso) {
+                    // Se a resposta incluir token, guardar no localStorage
+                    if (data.token) {
+                        localStorage.setItem('fialAuthToken', data.token);
+                    }
+                    localStorage.setItem('fialCurrentUser', JSON.stringify({ name: data.nome || data.name, email: this.tempEmail }));
                     
-                    this.currentUser = { name: data.nome || data.name };
+                    this.currentUser = { name: data.nome || data.name, email: this.tempEmail };
                     this.loginOpen = false;
                     window.location.reload();
                 } else { 
