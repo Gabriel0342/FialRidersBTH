@@ -473,8 +473,8 @@ function shopManager() {
                         id: product.id || product.ID || Math.floor(Math.random() * 10000),
                         name: product.nome || product.name || product.title || "Produto",
                         desc: product.descricao || product.desc || product.description || "",
-                        priceNormal: product.preco || product.preco_normal || product.priceNormal || product.price || 0,
-                        priceMember: product.preco_socio || product.priceMember || product.preco || product.price || 0,
+                        priceNormal: product.preco || product.preco_normal || product.preco_membro || product.priceNormal || product.price || 0,
+                        priceMember: product.preco_socio || product.preco_membro || product.priceMember || product.preco || product.price || 0,
                         images: productImages.length > 0 ? productImages : ["https://via.placeholder.com/400x500?text=Sem+Imagem"],
                         colors: product.cores || product.colors || ["Único"]
                     };
