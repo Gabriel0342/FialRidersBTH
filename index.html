@@ -285,8 +285,12 @@ function globalManager() {
                 // Suporta múltiplos formatos de resposta
                 let rawItems = [];
                 
+                // Formato 0: Carrossel (prioridade máxima)
+                if (data.carrossel && Array.isArray(data.carrossel)) {
+                    rawItems = data.carrossel;
+                }
                 // Formato 1: Array direto de fotos
-                if (Array.isArray(data)) {
+                else if (Array.isArray(data)) {
                     rawItems = data;
                 }
                 // Formato 2: Objeto com fotos/photos/imagens/images
@@ -316,6 +320,10 @@ function globalManager() {
                     rawItems = data.record.fotos;
                 } else if (data.record?.photos) {
                     rawItems = data.record.photos;
+                }
+                // Formato 6: Record com carrossel
+                else if (data.record?.carrossel) {
+                    rawItems = data.record.carrossel;
                 }
                 
                 // Extrair URLs das fotos
