@@ -575,7 +575,64 @@ function shopManager() {
         },
 
         async processOrder() {
-            alert("A processar encomenda... (Integração de pagamentos em breve)");
+            const nomeCompleto = this.checkoutForm.name;
+            const email = this.checkoutForm.email;
+            const morada = this.checkoutForm.address;
+            const codigoPostal = this.checkoutForm.zip;
+            const cidade = this.checkoutForm.city;
+            const telemovel = this.checkoutForm.phone;
+            
+            if (!nomeCompleto || !email || !morada || !codigoPostal || !cidade || !telemovel) {
+                alert("Preencha todos os campos obrigatórios.");
+                return;
+            }
+            
+            if (this.cart.length === 0) {
+                alert("O teu carrinho está vazio.");
+                return;
+            }
+            
+            const items = this.cart.map(item => ({
+                nome: item.name,
+                preco: item.price.toFixed(2)
+            }));
+            
+            const total = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2);
+            
+            const dadosEncomenda = {
+                nome_completo: nomeCompleto,
+                email: email,
+                morada: morada,
+                codigo_postal: codigoPostal,
+                cidade: cidade,
+                telemovel: telemovel,
+                items: items,
+                total: total
+            };
+            
+            this.loginLoading = true;
+            try {
+                const response = await apiFetch(`${API_BASE_URL}/enviar-encomenda`, {
+                    method: "POST",
+                    body: JSON.stringify(dadosEncomenda)
+                });
+                
+                if (response.success || response.sucesso) {
+                    alert("Encomenda recebida com sucesso! Obrigado pela tua compra.");
+                    localStorage.removeItem('fialCart');
+                    this.cart = [];
+                    this.checkoutOpen = false;
+                    this.cartOpen = false;
+                    window.location.href = "./Camisolas.Html";
+                } else {
+                    alert(response.erro || response.error || "Ocorreu um erro ao processar a encomenda.");
+                }
+            } catch (error) {
+                console.error("Erro ao enviar encomenda:", error);
+                alert("Erro de conexão com o servidor. Tente novamente.");
+            } finally {
+                this.loginLoading = false;
+            }
         }
     }
 }
