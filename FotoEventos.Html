@@ -47,6 +47,10 @@
           <a href="./FotoEventos.Html" class="text-sm/6 font-semibold text-green-500">Fotos dos Eventos</a>
         </div>
         <div class="flex flex-1 justify-end items-center gap-6">
+            <button @click="cartOpen = true" class="relative group text-white hover:text-green-500 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>
+                <span x-show="cart.length > 0" class="absolute -top-2 -right-2 bg-green-700 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center border border-stone-900" x-text="cartTotalItems"></span>
+            </button>
             <button @click="if(currentUser) logout(); else loginOpen = true" class="text-sm/6 font-semibold transition tracking-wide uppercase cursor-pointer" :class="currentUser ? 'text-green-500 hover:text-red-400' : 'text-stone-300 hover:text-green-500'" x-text="currentUser ? 'Olá, ' + currentUser.name + ' (Sair)' : 'LOGIN SÓCIO'"></button>
         </div>
       </nav>
@@ -67,6 +71,7 @@
                         <a href="./Eventos.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Eventos</a>
                         <a href="./Contactos.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Contactos</a>
                         <a href="./FotoEventos.Html" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-green-500 bg-stone-800">Fotos dos Eventos</a>
+                        <button @click="cartOpen = true; mobileMenuOpen = false" class="-mx-3 block w-full text-left rounded-lg px-3 py-2 text-base font-semibold text-stone-300 hover:bg-stone-800 hover:text-green-500">Carrinho (<span x-text="cartTotalItems"></span>)</button>
                         <button @click="if(currentUser) logout(); else { mobileMenuOpen = false; loginOpen = true; }" class="-mx-3 block w-full text-left rounded-lg px-3 py-2 text-base font-semibold uppercase tracking-widest" :class="currentUser ? 'text-red-400' : 'text-stone-300'"><span x-text="currentUser ? 'Sair (' + currentUser.name + ')' : 'Login Sócio'"></span></button>
                     </div>
                 </div>
@@ -106,6 +111,66 @@
             <p class="mt-4 text-[10px] text-stone-500">Dados validados com a base de dados oficial.</p>
         </div>
     </div>
+
+  <div class="relative z-[300]" x-show="cartOpen" x-cloak>
+    <div class="fixed inset-0 bg-black/70 transition-opacity" x-show="cartOpen" x-transition.opacity @click="cartOpen = false"></div>
+    <div class="fixed inset-0 overflow-hidden">
+      <div class="absolute inset-0 overflow-hidden">
+        <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+          <div class="pointer-events-auto w-screen max-w-md transform transition ease-in-out duration-500 sm:duration-700"
+               x-show="cartOpen"
+               x-transition:enter="translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="translate-x-0" x-transition:leave-end="translate-x-full">
+            <div class="flex h-full flex-col overflow-y-scroll bg-stone-900 border-l border-stone-700 text-stone-300 shadow-2xl">
+              <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6 custom-scroll">
+                <div class="flex items-start justify-between">
+                  <h2 class="text-lg font-medium text-white uppercase tracking-wider">Equipamento</h2>
+                  <button type="button" class="-m-2 p-2 text-stone-400 hover:text-white" @click="cartOpen = false">✕</button>
+                </div>
+                <div class="mt-8">
+                  <div class="flow-root">
+                    <ul role="list" class="-my-6 divide-y divide-stone-700">
+                      <template x-for="(item, index) in cart" :key="index">
+                          <li class="flex py-6">
+                            <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-stone-700 bg-stone-800">
+                              <img :src="item.image" class="h-full w-full object-cover object-center opacity-80">
+                            </div>
+                            <div class="ml-4 flex flex-1 flex-col">
+                              <div>
+                                <div class="flex justify-between text-base font-medium text-white">
+                                  <h3 x-text="item.name"></h3>
+                                  <p class="ml-4 text-green-500" x-text="formatPrice(item.price * item.quantity)"></p>
+                                </div>
+                                <p class="mt-1 text-sm text-stone-500" x-text="item.color ? 'Cor: ' + item.color : 'Tamanho Único'"></p>
+                              </div>
+                              <div class="flex flex-1 items-end justify-between text-sm">
+                                <p class="text-stone-500">Qtd <span x-text="item.quantity"></span></p>
+                                <button type="button" @click="removeFromCart(index)" class="font-medium text-red-700 hover:text-red-500 transition">Remover</button>
+                              </div>
+                            </div>
+                          </li>
+                      </template>
+                      <template x-if="cart.length === 0">
+                          <li class="py-6 text-center text-stone-500 italic">O teu equipamento está vazio.</li>
+                      </template>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="border-t border-stone-700 px-4 py-6 sm:px-6 bg-stone-800/50">
+                <div class="flex justify-between text-base font-medium text-white">
+                  <p>Subtotal</p>
+                  <p x-text="cartTotal"></p>
+                </div>
+                <div class="mt-6">
+                  <a href="./Camisolas.Html" class="flex items-center justify-center rounded-md border border-transparent bg-green-800 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-green-700 border-green-900 transition-all uppercase tracking-widest">Ir para Loja</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
     <main class="pt-24 px-4 pb-12 max-w-7xl mx-auto w-full flex-grow">
         <div id="albumsView">
@@ -206,6 +271,8 @@ async function apiFetch(url, options = {}) {
 function globalManager() {
     return {
         currentUser: JSON.parse(localStorage.getItem('fialCurrentUser')) || null,
+        cart: JSON.parse(localStorage.getItem('fialCart')) || [],
+        cartOpen: false,
         mobileMenuOpen: false, loginOpen: false, loginStep: 1, loginLoading: false,
         tempEmail: '', tempUserObj: null, generatedCode: null,
         selectedEvent: null,
@@ -254,6 +321,21 @@ function globalManager() {
                 localStorage.removeItem('fialCart');
                 window.location.reload(); 
             },
+        
+        removeFromCart(index) {
+            this.cart.splice(index, 1);
+            localStorage.setItem('fialCart', JSON.stringify(this.cart));
+        },
+        
+        formatPrice(v) { 
+            return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(v); 
+        },
+        
+        get cartTotal() { 
+            return this.formatPrice(this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)); 
+        },
+        
+        get cartTotalItems() { return this.cart.reduce((t, i) => t + i.quantity, 0); }
     }
 }
 
