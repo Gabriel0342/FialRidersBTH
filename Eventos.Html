@@ -252,10 +252,19 @@ function globalManager() {
             try {
                 const data = await apiFetch(`${API_BASE_URL}/eventos`);
                 
-                // Suporta data.events ou data.eventos
-                this.events = data.events || data.eventos || [];
+                // Suporta data.events, data.eventos ou data directement
+                let eventsData = data.events || data.eventos || (Array.isArray(data) ? data : []);
                 
-                this.events.sort((a, b) => new Date(b.date) - new Date(a.date));
+                // Normaliza os campos (suporta PT e EN)
+                this.events = eventsData.map(event => ({
+                    id: event.id || event.ID || Math.random(),
+                    titulo: event.titulo || event.title || "",
+                    data: event.data || event.date || "",
+                    local: event.local || event.location || "",
+                    descricao: event.descricao || event.description || ""
+                }));
+                
+                this.events.sort((a, b) => new Date(b.data) - new Date(a.data));
                 
                 this.renderTimeline();
 
@@ -279,9 +288,9 @@ function globalManager() {
 
         createEventCard(event, isLeft) {
             const cardContent = `
-                <h3 class="text-lg font-bold text-white uppercase tracking-wider">${event.title}</h3>
-                <p class="mt-2 text-stone-400 text-sm whitespace-pre-line leading-relaxed">${event.description}</p>
-                <span class="absolute text-[10px] font-bold text-green-500/80 -top-6 left-2 uppercase tracking-widest">${this.formatDate(event.date)}</span>
+                <h3 class="text-lg font-bold text-white uppercase tracking-wider">${event.titulo}</h3>
+                <p class="mt-2 text-stone-400 text-sm whitespace-pre-line leading-relaxed">${event.descricao}</p>
+                <span class="absolute text-[10px] font-bold text-green-500/80 -top-6 left-2 uppercase tracking-widest">${this.formatDate(event.data)}</span>
                 <button onclick="window.location.href='./FotoEventos.Html'" class="mt-6 px-4 py-2 bg-stone-800 border border-stone-700 text-stone-300 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:bg-green-800 hover:text-white transition-all shadow-md">Ver Fotos</button>
             `;
             const timelineDot = `
