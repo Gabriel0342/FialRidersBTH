@@ -451,9 +451,14 @@ function shopManager() {
                         return url;
                     };
 
-                    // Normaliza imagens (suporta imagem ou images)
+                    // Normaliza imagens (suporta imagem, imagens, images)
                     let productImages = [];
-                    if (Array.isArray(product.imagem)) {
+                    if (Array.isArray(product.imagens)) {
+                        productImages = product.imagens.map(normalizeImageUrl).filter(Boolean);
+                    } else if (product.imagens) {
+                        const normalized = normalizeImageUrl(product.imagens);
+                        if (normalized) productImages = [normalized];
+                    } else if (Array.isArray(product.imagem)) {
                         productImages = product.imagem.map(normalizeImageUrl).filter(Boolean);
                     } else if (product.imagem) {
                         const normalized = normalizeImageUrl(product.imagem);
