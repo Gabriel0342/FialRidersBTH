@@ -542,6 +542,7 @@ function shopManager() {
         logout() { 
             localStorage.removeItem('fialCurrentUser'); 
             localStorage.removeItem('fialAuthToken'); 
+            localStorage.removeItem('fialCart');
             window.location.reload(); 
         },
 

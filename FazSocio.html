@@ -350,6 +350,7 @@ function globalManager() {
         logout() { 
                 localStorage.removeItem('fialCurrentUser'); 
                 localStorage.removeItem('fialAuthToken'); 
+                localStorage.removeItem('fialCart');
                 window.location.reload(); 
             },
         get cartTotalItems() { return this.cart.reduce((t, i) => t + i.quantity, 0); },
