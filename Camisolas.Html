@@ -337,9 +337,6 @@
 // URL do Backend - Desenvolvimento Local
 const API_BASE_URL = "https://zwmnxjv965.execute-api.eu-north-1.amazonaws.com/default";
 
-// ============================================
-// WRAPPER DE FETCH CENTRALIZADO COM TOKEN AUTOMÁTICO
-// ============================================
 /**
  * Função wrapper para fetch que injeta automaticamente o token de autorização
  * e o cabeçalho personalizado x-origem-fialriders em TODOS os pedidos ao backend.
@@ -352,38 +349,29 @@ const API_BASE_URL = "https://zwmnxjv965.execute-api.eu-north-1.amazonaws.com/de
  * @throws {Error} - Lança erro se a resposta não for OK
  */
 async function apiFetch(url, options = {}) {
-    // Criar novos headers baseados nos headers existentes
     const headers = new Headers(options.headers || {});
     
-    // Adicionar cabeçalho personalizado obrigatório
     headers.set('x-origem-fialriders', 'autorizado');
     
-    // Obter token do localStorage
     const token = localStorage.getItem('fialAuthToken');
     
-    // Se token existir, adicionar ao header Authorization
     if (token) {
         headers.set('Authorization', `Bearer ${token}`);
     }
     
-    // Garantir que Content-Type é application/json para POST/PUT/PATCH
     if (['POST', 'PUT', 'PATCH'].includes((options.method || 'GET').toUpperCase()) && 
         !headers.get('Content-Type')) {
         headers.set('Content-Type', 'application/json');
     }
     
-    // Criar config final
     const config = {
         ...options,
         headers: headers
     };
     
-    // Fazer o request
     const response = await fetch(url, config);
     
-    // Verificar se a resposta é OK
     if (!response.ok) {
-        // Tratar erro 403 especificamente
         if (response.status === 403) {
             throw new Error('Acesso negado');
         }
@@ -399,11 +387,9 @@ async function apiFetch(url, options = {}) {
         throw new Error(errorMessage);
     }
     
-    // Retornar JSON da resposta
     try {
         return await response.json();
     } catch (e) {
-        // Se falhar ao parsear JSON, retornar objeto vazio para não quebrar o fluxo
         console.error("Erro ao parsear JSON:", e);
         return {};
     }
@@ -434,7 +420,6 @@ function shopManager() {
                 
                 let produtosExtraidos = [];
 
-                // Suporta multiplos formatos: data.products, data.produtos, data.record.products, etc.
                 if (Array.isArray(data)) {
                     produtosExtraidos = data;
                 } else if (data.produtos && Array.isArray(data.produtos)) {
@@ -449,25 +434,19 @@ function shopManager() {
                     console.warn("Aviso: Formato de JSON não reconhecido.", data);
                 }
 
-                // Normaliza os campos dos produtos para o formato esperado pelo frontend
                 this.products = produtosExtraidos.map(product => {
-                    // Função para normalizar URLs de imagens
                     const normalizeImageUrl = (url) => {
                         if (!url) return null;
-                        // Se já for URL absoluta, mantém
                         if (typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'))) {
                             return url;
                         }
-                        // Se for caminho relativo, prefixa com API_BASE_URL
                         if (typeof url === 'string' && !url.startsWith('data:')) {
-                            // Remove leading slash se existir para evitar // na URL
                             const cleanUrl = url.startsWith('/') ? url.substring(1) : url;
                             return `${API_BASE_URL}/${cleanUrl}`;
                         }
                         return url;
                     };
 
-                    // Normaliza imagens (suporta imagem, imagens, images)
                     let productImages = [];
                     if (Array.isArray(product.imagens)) {
                         productImages = product.imagens.map(normalizeImageUrl).filter(Boolean);
@@ -506,7 +485,6 @@ function shopManager() {
 
         async iniciarLogin(numero, email) {
             if(!numero || !email) return;
-            // Limpa carrinho ao iniciar login
             this.cart = [];
             localStorage.removeItem('fialCart');
             this.loginLoading = true;
@@ -515,7 +493,6 @@ function shopManager() {
                     method: 'POST',
                     body: JSON.stringify({ numero, email })
                 });
-                // Suporta data.sucesso ou data.success
                 if (data.sucesso || data.success) {
                     this.tempEmail = email;
                     this.loginStep = 2; 
@@ -533,9 +510,7 @@ function shopManager() {
                     body: JSON.stringify({ email: this.tempEmail, codigo: input })
                 });
 
-                // Suporta data.success, data.valid ou data.sucesso
                 if (data.success || data.valid || data.sucesso) {
-                    // Se a resposta incluir token, guardar no localStorage
                     if (data.token) {
                         localStorage.setItem('fialAuthToken', data.token);
                     }
@@ -631,7 +606,6 @@ function shopManager() {
                 });
                 
                 if (response.success || response.sucesso) {
-                    // Enviar email de confirmação via EmailJS
                     try {
                         await emailjs.send(
                             "service_e3ob8ju",
@@ -648,7 +622,6 @@ function shopManager() {
                         );
                     } catch (emailError) {
                         console.error("Erro ao enviar email:", emailError);
-                        // Não falhar a encomenda se o email não for enviado
                     }
                     
                     alert("Encomenda recebida com sucesso! Obrigado pela tua compra.");
