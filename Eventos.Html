@@ -171,6 +171,41 @@
 const API_BASE_URL = "https://zwmnxjv965.execute-api.eu-north-1.amazonaws.com/default";
 
 /**
+ * Função assíncrona para fazer pedidos GET ao backend com cabeçalho personalizado x-origem-fialriders
+ * Trata especificamente o erro HTTP 403 (Acesso Negado)
+ * 
+ * @param {string} endpoint - Endpoint do backend (ex: '/eventos')
+ * @returns {Promise<any>} - Dados da resposta em JSON
+ */
+async function fetchWithCustomHeader(endpoint) {
+    const url = `${API_BASE_URL}${endpoint}`;
+    
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'x-origem-fialriders': 'autorizado'
+            }
+        });
+        
+        if (!response.ok) {
+            if (response.status === 403) {
+                throw new Error('Acesso Negado - Erro 403');
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Dados recebidos:', data);
+        return data;
+        
+    } catch (error) {
+        console.error('Erro ao fazer o pedido:', error.message);
+        throw error;
+    }
+}
+
+/**
  * Função wrapper para fetch que injeta automaticamente o token de autorização
  * em TODOS os pedidos ao backend.
  * Se o token existir no localStorage ('fialAuthToken'), ele será adicionado
