@@ -197,7 +197,7 @@ function showMaintenance() {
 // ============================================
 /**
  * Função wrapper para fetch que injeta automaticamente o token de autorização
- * em TODOS os pedidos ao backend.
+ * e o cabeçalho personalizado x-origem-fialriders em TODOS os pedidos ao backend.
  * Se o token existir no localStorage ('fialAuthToken'), ele será adicionado
  * ao header Authorization: Bearer <TOKEN>
  * 
@@ -209,6 +209,9 @@ function showMaintenance() {
 async function apiFetch(url, options = {}) {
     // Criar novos headers baseados nos headers existentes
     const headers = new Headers(options.headers || {});
+    
+    // Adicionar cabeçalho personalizado obrigatório
+    headers.set('x-origem-fialriders', 'autorizado');
     
     // Obter token do localStorage
     const token = localStorage.getItem('fialAuthToken');
@@ -235,6 +238,15 @@ async function apiFetch(url, options = {}) {
     
     // Verificar se a resposta é OK
     if (!response.ok) {
+        // Tratar erro 403 especificamente
+        if (response.status === 403) {
+            // Chamar showMaintenance se existir (para o index.html)
+            if (typeof showMaintenance === 'function') {
+                showMaintenance();
+            }
+            throw new Error('Acesso negado');
+        }
+        
         let errorData;
         try {
             errorData = await response.json();
