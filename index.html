@@ -181,7 +181,6 @@
 </div>
 
 <script>
-// URL do Backend - Desenvolvimento Local
 const API_BASE_URL = "https://zwmnxjv965.execute-api.eu-north-1.amazonaws.com/default";
 
 function showMaintenance() {
@@ -191,17 +190,6 @@ function showMaintenance() {
     }
 }
 
-/**
- * Função wrapper para fetch que injeta automaticamente o token de autorização
- * e o cabeçalho personalizado x-origem-fialriders em TODOS os pedidos ao backend.
- * Se o token existir no localStorage ('fialAuthToken'), ele será adicionado
- * ao header Authorization: Bearer <TOKEN>
- * 
- * @param {string} url - URL do endpoint
- * @param {Object} options - Opções do fetch (method, headers, body, etc.)
- * @returns {Promise<any>} - Resposta da API em JSON
- * @throws {Error} - Lança erro se a resposta não for OK
- */
 async function apiFetch(url, options = {}) {
     const headers = new Headers(options.headers || {});
     
