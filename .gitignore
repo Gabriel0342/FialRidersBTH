@@ -1,0 +1,23 @@
+# IDE / editores
+.idea/
+.vscode/
+.env
+
+# Ficheiros de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Ferramentas Node (apenas locais)
+node_modules/
+
+# Logs
+*.log
+
+# Dados locais em JSON; manter os manifests necessários ao npm
+*.json
+!package.json
+!package-lock.json
+
+# Lista interna de melhorias (texto de trabalho — nunca publicar)
+MELHORIAS-INTERNAS.md
