@@ -1,0 +1,9 @@
+{
+  "name": "fial-riders-site",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Website do Motoclube Fial Riders — GitHub Pages + API serverless em AWS",
+  "scripts": {
+    "start": "npx --yes serve ."
+  }
+}
