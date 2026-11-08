@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-PT" xmlns:x-transition="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +21,7 @@
             inset: 0;
             background:
                 linear-gradient(rgba(20, 25, 20, 0.85), rgba(15, 20, 15, 0.90)),
-                url("./mainFundo.jpg") center/cover no-repeat;
+                url("./assets/img/mainFundo.jpg") center/cover no-repeat;
             z-index: -1;
         }
         
@@ -70,7 +70,7 @@
         <div class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" @click="mobileMenuOpen = false"></div>
         <div class="fixed inset-y-0 left-0 z-50 w-full overflow-y-auto bg-stone-900 border-r border-stone-700 px-6 py-6 sm:max-w-sm">
             <div class="flex items-center justify-between">
-                <a href="#" class="-m-1.5 p-1.5"><img src="./LogoMotar-removebg-preview.png" alt="" class="h-15 w-20 opacity-90" /></a>
+                <a href="#" class="-m-1.5 p-1.5"><img src="./assets/img/LogoMotar-removebg-preview.png" alt="" class="h-15 w-20 opacity-90" /></a>
                 <button type="button" @click="mobileMenuOpen = false" class="-m-2.5 rounded-md p-2.5 text-stone-400 hover:text-white"><span class="sr-only">Fechar</span><svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg></button>
             </div>
             <div class="mt-6 flow-root">
@@ -226,12 +226,12 @@
 
         <div class="w-full xl:w-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5 pt-12 xl:float-right mx-auto">
           <div class="flex-col">
-            <img src="./QuemSomos1.jpeg" alt="Fial Riders" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg brightness-90 hover:brightness-100 transition duration-500" />
-            <img src="./QuemSomos2.jpeg" alt="Fial Riders" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg pt-5 brightness-90 hover:brightness-100 transition duration-500" />
+            <img src="./assets/img/QuemSomos1.jpeg" alt="Fial Riders" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg brightness-90 hover:brightness-100 transition duration-500" />
+            <img src="./assets/img/QuemSomos2.jpeg" alt="Fial Riders" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg pt-5 brightness-90 hover:brightness-100 transition duration-500" />
           </div>
           <div class="items-center flex flex-col lg:mt-14 pt-14 ps-5 gap-5">
-            <img src="./QuemSomos3.jpeg" alt="Fial Riders" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg brightness-90 hover:brightness-100 transition duration-500" />
-            <img src="./QuemSomos7.jpeg" alt="Fial Riders" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg brightness-90 hover:brightness-100 transition duration-500" />
+            <img src="./assets/img/QuemSomos3.jpeg" alt="Fial Riders" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg brightness-90 hover:brightness-100 transition duration-500" />
+            <img src="./assets/img/QuemSomos7.jpeg" alt="Fial Riders" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg brightness-90 hover:brightness-100 transition duration-500" />
           </div>
         </div>
 

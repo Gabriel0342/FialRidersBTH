@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-PT" xmlns:x-transition="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,7 @@
         body { margin: 0; color: white; min-height: 100vh; position: relative; overflow-x: hidden; }
         body::before {
             content: ""; position: fixed; inset: 0; z-index: -1;
-            background: linear-gradient(rgba(20, 25, 20, 0.85), rgba(15, 20, 15, 0.90)), url("./mainFundo.jpg") center/cover no-repeat;
+            background: linear-gradient(rgba(20, 25, 20, 0.85), rgba(15, 20, 15, 0.90)), url("./assets/img/mainFundo.jpg") center/cover no-repeat;
         }
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
         .modal-overlay.active { display: flex !important; }
@@ -66,7 +66,7 @@
         <div class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" @click="mobileMenuOpen = false"></div>
         <div class="fixed inset-y-0 left-0 z-50 w-full overflow-y-auto bg-stone-900 border-r border-stone-700 px-6 py-6 sm:max-w-sm">
             <div class="flex items-center justify-between">
-                <a href="#" class="-m-1.5 p-1.5"><img src="./LogoMotar-removebg-preview.png" alt="" class="h-15 w-20 opacity-90" /></a>
+                <a href="#" class="-m-1.5 p-1.5"><img src="./assets/img/LogoMotar-removebg-preview.png" alt="" class="h-15 w-20 opacity-90" /></a>
                 <button type="button" @click="mobileMenuOpen = false" class="-m-2.5 rounded-md p-2.5 text-stone-400 hover:text-white"><span class="sr-only">Fechar</span><svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg></button>
             </div>
             <div class="mt-6 flow-root">
@@ -308,7 +308,7 @@
                     <div><h3 class="text-lg font-bold text-white leading-tight uppercase tracking-wide" x-text="product.name"></h3><p class="text-stone-400 text-sm mt-1 mb-2 line-clamp-2" x-text="product.desc"></p></div>
                     <div class="mb-3">
                         <template x-if="isMember"><div class="flex flex-col"><span class="text-[10px] font-bold text-green-500 uppercase tracking-widest">Preço Sócio</span><div class="flex items-center gap-2"><span class="text-xl font-bold text-green-400" x-text="formatPrice(product.priceMember)"></span><span class="text-sm text-stone-500 line-through" x-text="formatPrice(product.priceNormal)"></span></div></div></template>
-                        <template x-if="!isMember"><div class="flex flex-col"><div class="flex items-baseline justify-between"><span class="text-xl font-bold text-white" x-text="formatPrice(product.priceNormal)"></span></div><button @click="loginOpen = true" class="text-left text-xs text-green-500 hover:text-green-400 hover:underline mt-1 transition-colors">Login para ver preço de sócio (<span x-text="formatPrice(product.priceMember)"></span>)</button></div></template>
+                        <template x-if="!isMember"><div class="flex flex-col"><div class="flex items-baseline justify-between"><span class="text-xl font-bold text-white" x-text="formatPrice(product.priceNormal)"></span></div><button @click="loginOpen = true" class="text-left text-xs text-green-500 hover:text-green-400 hover:underline mt-1 transition-colors">Login para ver preço de sócio</button></div></template>
                     </div>
                     <div class="mt-auto mb-2" x-show="product.colors && product.colors.length > 0">
                         <label class="text-[10px] font-bold text-stone-500 uppercase tracking-widest">Cor:</label>
@@ -333,8 +333,7 @@
 </div>
 
 <script>
-
-const API_BASE_URL = "https://zwmnxjv965.execute-api.eu-north-1.amazonaws.com/default";
+    const API_BASE_URL = "https://zwmnxjv965.execute-api.eu-north-1.amazonaws.com/default";
 
 async function apiFetch(url, options = {}) {
     const headers = new Headers(options.headers || {});
