@@ -152,7 +152,7 @@
                       <template x-for="(item, index) in cart" :key="index">
                           <li class="flex py-6">
                             <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-stone-700 bg-stone-800">
-                              <img :src="item.image" class="h-full w-full object-cover object-center opacity-80">
+                              <img :src="item.image" loading="lazy" decoding="async" class="h-full w-full object-cover object-center opacity-80">
                             </div>
                             <div class="ml-4 flex flex-1 flex-col">
                               <div>
@@ -226,12 +226,12 @@
 
         <div class="w-full xl:w-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5 pt-12 xl:float-right mx-auto">
           <div class="flex-col">
-            <img src="./assets/img/QuemSomos1.jpeg" alt="Fial Riders" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg brightness-90 hover:brightness-100 transition duration-500" />
-            <img src="./assets/img/QuemSomos2.jpeg" alt="Fial Riders" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg pt-5 brightness-90 hover:brightness-100 transition duration-500" />
+            <img src="./assets/img/QuemSomos1.jpeg" alt="Fial Riders" loading="lazy" decoding="async" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg brightness-90 hover:brightness-100 transition duration-500" />
+            <img src="./assets/img/QuemSomos2.jpeg" alt="Fial Riders" loading="lazy" decoding="async" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg pt-5 brightness-90 hover:brightness-100 transition duration-500" />
           </div>
           <div class="items-center flex flex-col lg:mt-14 pt-14 ps-5 gap-5">
-            <img src="./assets/img/QuemSomos3.jpeg" alt="Fial Riders" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg brightness-90 hover:brightness-100 transition duration-500" />
-            <img src="./assets/img/QuemSomos7.jpeg" alt="Fial Riders" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg brightness-90 hover:brightness-100 transition duration-500" />
+            <img src="./assets/img/QuemSomos3.jpeg" alt="Fial Riders" loading="lazy" decoding="async" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg brightness-90 hover:brightness-100 transition duration-500" />
+            <img src="./assets/img/QuemSomos7.jpeg" alt="Fial Riders" loading="lazy" decoding="async" class="w-full max-w-sm mx-auto rounded-lg object-cover blur-bg brightness-90 hover:brightness-100 transition duration-500" />
           </div>
         </div>
 

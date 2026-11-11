@@ -129,7 +129,7 @@
             <div class="flex transition-transform duration-700 ease-in-out" :style="`transform: translateX(-${activeSlide * 100}%)`">
                 <template x-for="(img, index) in carouselImages" :key="index">
                     <div class="min-w-full h-64 relative">
-                        <img :src="img" class="w-full h-full object-cover brightness-90">
+                        <img :src="img" loading="lazy" decoding="async" class="w-full h-full object-cover brightness-90">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                     </div>
                 </template>
@@ -148,7 +148,7 @@
             <div class="animate-ticker flex items-center">
                 <template x-for="p in [...partners, ...partners]" :key="Math.random()">
                     <div class="flex-shrink-0 pr-20">
-                        <img :src="p.logo" :alt="p.nome" class="h-20 md:h-28 w-auto grayscale hover:grayscale-0 transition duration-500 opacity-70 hover:opacity-100">
+                        <img :src="p.logo" :alt="p.nome" loading="lazy" decoding="async" class="h-20 md:h-28 w-auto grayscale hover:grayscale-0 transition duration-500 opacity-70 hover:opacity-100">
                     </div>
                 </template>
             </div>

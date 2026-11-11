@@ -135,7 +135,7 @@
                     <ul role="list" class="-my-6 divide-y divide-stone-700">
                       <template x-for="(item, index) in cart" :key="index">
                           <li class="flex py-6">
-                            <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-stone-700 bg-stone-800"><img :src="item.image" class="h-full w-full object-cover object-center opacity-80"></div>
+                            <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-stone-700 bg-stone-800"><img :src="item.image" loading="lazy" decoding="async" class="h-full w-full object-cover object-center opacity-80"></div>
                             <div class="ml-4 flex flex-1 flex-col">
                               <div>
                                 <div class="flex justify-between text-base font-medium text-white"><h3 x-text="item.name"></h3><p class="ml-4 text-green-500" x-text="formatPrice(item.price * item.quantity)"></p></div>
@@ -191,7 +191,7 @@
                               <ul role="list" class="-my-4 divide-y divide-stone-800">
                                   <template x-for="item in cart" :key="item.productId + item.color">
                                       <li class="flex py-4">
-                                          <div class="h-16 w-16 flex-shrink-0 overflow-hidden rounded border border-stone-700 bg-stone-800"><img :src="item.image" class="h-full w-full object-cover object-center opacity-90"></div>
+                                          <div class="h-16 w-16 flex-shrink-0 overflow-hidden rounded border border-stone-700 bg-stone-800"><img :src="item.image" loading="lazy" decoding="async" class="h-full w-full object-cover object-center opacity-90"></div>
                                           <div class="ml-4 flex flex-1 flex-col justify-center">
                                               <div class="flex justify-between text-sm font-medium text-white"><h3 x-text="item.name"></h3><p class="ml-4 text-stone-400" x-text="formatPrice(item.price * item.quantity)"></p></div>
                                               <p class="text-xs text-stone-500" x-text="item.quantity + ' x ' + (item.color ? item.color : 'Uniq')"></p>
@@ -267,7 +267,7 @@
                         
                         <template x-for="(img, index) in product.images" :key="index">
                             <div class="w-full h-full flex-shrink-0 snap-center relative">
-                                <img :src="img" :alt="product.name" class="w-full h-full object-cover object-center opacity-90 hover:opacity-100 transition-opacity">
+                                <img :src="img" :alt="product.name" loading="lazy" decoding="async" class="w-full h-full object-cover object-center opacity-90 hover:opacity-100 transition-opacity">
                             </div>
                         </template>
 
@@ -457,7 +457,7 @@ function shopManager() {
                         desc: product.descricao || product.desc || product.description || "",
                         priceNormal: product.preco || product.preco_normal || product.preco_membro || product.priceNormal || product.price || 0,
                         priceMember: product.preco_socio || product.preco_membro || product.priceMember || product.preco || product.price || 0,
-                        images: productImages.length > 0 ? productImages : ["https://via.placeholder.com/400x500?text=Sem+Imagem"],
+                        images: productImages.length > 0 ? productImages : ["./assets/img/placeholder.svg"],
                         colors: product.cores || product.colors || ["Único"]
                     };
                 });
